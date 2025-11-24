@@ -31,16 +31,22 @@ void PhysicsEngine::update(double dt, double voltage) {
     double r_off = m_params.R_off;
     m_w = clamp01(w_new);
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
-    m_i = voltage / m_r;
-    double noise = m_norm(m_rng) * (0.05 * m_i);
-    m_i += noise;
-    m_power = voltage * voltage / m_r;
+    double raw_i = voltage / m_r;
+    if (raw_i > m_params.I_compliance) raw_i = m_params.I_compliance;
+    if (raw_i < -m_params.I_compliance) raw_i = -m_params.I_compliance;
+    double noise = m_norm(m_rng) * (0.05 * raw_i);
+    m_i = raw_i + noise;
+    m_power = std::fabs(m_i * voltage);
     double dT = m_power * m_params.theta_thermal;
     if (dT > m_params.T_critical) {
         m_w = clamp01(m_w - dt * std::abs(m_params.k_off));
         m_r = r_on + (r_off - r_on) * (1.0 - m_w);
-        m_i = voltage / m_r;
-        m_power = voltage * voltage / m_r;
+        raw_i = voltage / m_r;
+        if (raw_i > m_params.I_compliance) raw_i = m_params.I_compliance;
+        if (raw_i < -m_params.I_compliance) raw_i = -m_params.I_compliance;
+        noise = m_norm(m_rng) * (0.05 * raw_i);
+        m_i = raw_i + noise;
+        m_power = std::fabs(m_i * voltage);
     }
 }
 
@@ -50,3 +56,4 @@ double PhysicsEngine::i() const { return m_i; }
 double PhysicsEngine::power() const { return m_power; }
 std::pair<double,double> PhysicsEngine::iv_point(double v) const { return {v, m_i}; }
 MemristorParams& PhysicsEngine::params() { return m_params; }
+void PhysicsEngine::set_params(const MemristorParams& p) { m_params = p; }

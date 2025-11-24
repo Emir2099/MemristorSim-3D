@@ -35,6 +35,23 @@ static Waveform index_to_waveform(int idx) {
 
 void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, const PhysicsEngine& physics) {
     ImGui::Begin("Controls");
+    static std::string current_material = "Custom";
+    if (ImGui::BeginCombo("Material", current_material.c_str())) {
+        auto presets = MemristorLibrary::GetPresets();
+        for (auto const& kv : presets) {
+            const std::string& name = kv.first;
+            const MemristorParams& p = kv.second;
+            bool sel = (current_material == name);
+            if (ImGui::Selectable(name.c_str(), sel)) {
+                current_material = name;
+                const_cast<PhysicsEngine&>(physics).set_params(p);
+                params = const_cast<PhysicsEngine&>(physics).params();
+            }
+            if (sel) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::Separator();
     int wf = waveform_to_index(waveform.waveform());
     const char* items[] = {"DC","Sine","Triangle","Pulse"};
     ImGui::Combo("Input", &wf, items, 4);
@@ -47,6 +64,7 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, co
     waveform.set_frequency(freq);
     ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, -1000.0f, -1.0f);
     ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -10.0f, -0.1f);
+    ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.6f");
     if (ImGui::Button("Reset Device")) { const_cast<PhysicsEngine&>(physics).reset(); }
     ImGui::Text("w=%.3f R=%.1f I=%.6f P=%.6f", physics.w(), physics.r(), physics.i(), physics.power());
     ImGui::End();
@@ -80,9 +98,10 @@ void Gui::draw_oscilloscope(std::pair<double,double> iv) {
     ImGui::Begin("Oscilloscope");
     static ScrollingBuffer buf(2000);
     buf.AddPoint((float)iv.first, (float)iv.second);
-    if (ImPlot::BeginPlot("I-V")) {
+    if (ImPlot::BeginPlot("Hysteresis Loop")) {
+        ImPlot::SetupAxes("Voltage (V)", "Current (A)");
         if (buf.Data.size() > 1) {
-            ImPlot::PlotLine("IV", &buf.Data[0].x, &buf.Data[0].y, buf.Data.size(), 0, buf.Offset);
+            ImPlot::PlotLine("Memristor", &buf.Data[0].x, &buf.Data[0].y, buf.Data.size(), 0, buf.Offset);
         }
         ImPlot::EndPlot();
     }
