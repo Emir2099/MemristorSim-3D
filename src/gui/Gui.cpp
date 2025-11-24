@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <fstream>
 #include <vector>
+#include "../utils/ConfigManager.h"
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include "../render/Camera.h"
@@ -150,4 +151,26 @@ void Gui::shutdown() {
     ImGui_ImplGlfw_Shutdown();
     ImPlot::DestroyContext();
     ImGui::DestroyContext();
+}
+void Gui::draw_menu(MemristorParams& params, WaveformGenerator& waveform, PhysicsEngine& physics) {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Save Configuration")) {
+                ConfigManager::Save("experiment_config.json", physics.params(), waveform.pulse_settings(), (int)waveform.waveform());
+            }
+            if (ImGui::MenuItem("Load Configuration")) {
+                int newType = (int)waveform.waveform();
+                PulseSettings ps = waveform.pulse_settings();
+                MemristorParams mp = physics.params();
+                if (ConfigManager::Load("experiment_config.json", mp, ps, newType)) {
+                    physics.set_params(mp);
+                    params = physics.params();
+                    waveform.set_waveform((Waveform)newType);
+                    waveform.pulse_settings() = ps;
+                }
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
 }

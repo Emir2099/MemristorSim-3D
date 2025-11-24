@@ -41,6 +41,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
 add_library(imgui_backend
   ${imgui_SOURCE_DIR}/imgui.cpp
   ${imgui_SOURCE_DIR}/imgui_draw.cpp
@@ -69,6 +76,7 @@ file(GLOB SRC_FILES CONFIGURE_DEPENDS src/**/*.cpp)
 add_executable(MemristorSim src/main.cpp ${SRC_FILES})
 target_include_directories(MemristorSim PUBLIC src ${glm_SOURCE_DIR})
 target_link_libraries(MemristorSim PRIVATE glfw glad imgui_backend implot_lib)
+target_link_libraries(MemristorSim PRIVATE nlohmann_json::nlohmann_json)
 target_compile_definitions(MemristorSim PRIVATE IMGUI_ENABLE_DOCKING)
 
 if(WIN32)

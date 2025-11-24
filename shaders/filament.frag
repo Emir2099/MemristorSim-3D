@@ -27,5 +27,7 @@ void main(){
         float gap_size = (gap_threshold - u_Conductance) * 2.0;
         if (abs(FragPos.y) < gap_size) { discard; }
     }
-    FragColor = vec4(finalColor, 1.0);
+    vec3 mapped = finalColor / (finalColor + vec3(1.0));
+    mapped = pow(mapped, vec3(1.0/2.2));
+    FragColor = vec4(mapped, 1.0);
 }

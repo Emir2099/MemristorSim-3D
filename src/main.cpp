@@ -32,6 +32,20 @@ int main() {
     WaveformGenerator waveform;
 
     double lastTime = glfwGetTime();
+
+#if defined(__has_include)
+#if __has_include("vendor/stb_image.h")
+#define HAVE_STB_IMAGE 1
+#include "vendor/stb_image.h"
+    GLFWimage images[1];
+    images[0].pixels = stbi_load("assets/icon.png", &images[0].width, &images[0].height, 0, 4);
+    if (images[0].pixels) {
+        glfwSetWindowIcon(window, 1, images);
+        stbi_image_free(images[0].pixels);
+    }
+#endif
+#endif
+    glfwSetWindowTitle(window, "MemristorSim Pro 1.0");
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         int display_w, display_h;
@@ -51,6 +65,7 @@ int main() {
         renderer.end_scene();
 
         gui.begin_frame();
+        gui.draw_menu(params, waveform, physics);
         gui.draw_controls(params, waveform, physics);
         gui.draw_viewport(renderer.viewport_texture(), renderer.viewport_size(), camera);
         gui.draw_oscilloscope(now, voltage, physics);
