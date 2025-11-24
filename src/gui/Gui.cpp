@@ -33,7 +33,7 @@ static Waveform index_to_waveform(int idx) {
     return Waveform::DC;
 }
 
-void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, const PhysicsEngine& physics) {
+void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, PhysicsEngine& physics) {
     ImGui::Begin("Controls");
     static std::string current_material = "Custom";
     if (ImGui::BeginCombo("Material", current_material.c_str())) {
@@ -44,8 +44,8 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, co
             bool sel = (current_material == name);
             if (ImGui::Selectable(name.c_str(), sel)) {
                 current_material = name;
-                const_cast<PhysicsEngine&>(physics).set_params(p);
-                params = const_cast<PhysicsEngine&>(physics).params();
+                physics.set_params(p);
+                params = physics.params();
             }
             if (sel) ImGui::SetItemDefaultFocus();
         }
@@ -65,7 +65,7 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, co
     ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, -1000.0f, -1.0f);
     ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -10.0f, -0.1f);
     ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.6f");
-    if (ImGui::Button("Reset Device")) { const_cast<PhysicsEngine&>(physics).reset(); }
+    if (ImGui::Button("Reset Device")) { physics.reset(); }
     ImGui::Text("w=%.3f R=%.1f I=%.6f P=%.6f", physics.w(), physics.r(), physics.i(), physics.power());
     ImGui::End();
 }

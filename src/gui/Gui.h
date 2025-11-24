@@ -10,7 +10,7 @@ class Gui {
 public:
     explicit Gui(GLFWwindow* window);
     void begin_frame();
-    void draw_controls(MemristorParams& params, WaveformGenerator& waveform, const PhysicsEngine& physics);
+    void draw_controls(MemristorParams& params, WaveformGenerator& waveform, PhysicsEngine& physics);
     void draw_viewport(unsigned int texture, glm::ivec2 size, class Camera& camera);
     void draw_oscilloscope(std::pair<double,double> iv);
     void end_frame();
