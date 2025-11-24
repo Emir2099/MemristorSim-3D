@@ -16,6 +16,18 @@ double WaveformGenerator::get_voltage(double t) const {
             double x = std::fmod(t * m_frequency, 1.0);
             return x < 0.5 ? m_amplitude : 0.0;
         }
+        case Waveform::RRAM_Sequence: {
+            double cycle_duration = m_pulse.pulse_width * 4.0;
+            double t_in_cycle = std::fmod(t, cycle_duration);
+            int stage = (int)(t_in_cycle / m_pulse.pulse_width);
+            switch (stage) {
+                case 0: return m_pulse.v_set;
+                case 1: return m_pulse.v_read;
+                case 2: return m_pulse.v_reset;
+                case 3: return m_pulse.v_read;
+                default: return 0.0;
+            }
+        }
     }
     return 0.0;
 }
@@ -26,4 +38,4 @@ void WaveformGenerator::set_frequency(double f) { m_frequency = f; }
 Waveform WaveformGenerator::waveform() const { return m_waveform; }
 double WaveformGenerator::amplitude() const { return m_amplitude; }
 double WaveformGenerator::frequency() const { return m_frequency; }
-
+PulseSettings& WaveformGenerator::pulse_settings() { return m_pulse; }

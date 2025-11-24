@@ -73,6 +73,7 @@ void Renderer::draw_scene(const Camera& cam) {
     shaderFilament.setVec3("u_ViewPos", viewPos);
     shaderFilament.setFloat("u_Time", (float)glfwGetTime());
     shaderFilament.setFloat("u_StateW", (float)m_w);
+    shaderFilament.setFloat("u_Conductance", (float)m_w);
 
     glm::mat4 model(1.0f);
     model = glm::scale(model, glm::vec3(filamentRadius, 1.0f, filamentRadius));

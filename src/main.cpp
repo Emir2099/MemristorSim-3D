@@ -53,7 +53,7 @@ int main() {
         gui.begin_frame();
         gui.draw_controls(params, waveform, physics);
         gui.draw_viewport(renderer.viewport_texture(), renderer.viewport_size(), camera);
-        gui.draw_oscilloscope(physics.iv_point(voltage));
+        gui.draw_oscilloscope(now, voltage, physics);
         gui.end_frame();
 
         glfwSwapBuffers(window);
