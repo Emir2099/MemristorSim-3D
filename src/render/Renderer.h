@@ -9,7 +9,7 @@ public:
     void resize(int width, int height);
     void begin_scene();
     void update_filament(double w, double power);
-    void draw_scene();
+    void draw_scene(const class Camera& cam);
     void end_scene();
     void shutdown();
     GLuint viewport_texture() const;

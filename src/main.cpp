@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "gui/Gui.h"
 #include "render/Renderer.h"
+#include "render/Camera.h"
 #include "physics/Memristor.h"
 #include "utils/Waveform.h"
 
@@ -14,6 +15,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     GLFWwindow* window = glfwCreateWindow(1280, 800, "MemristorSim 3D", nullptr, nullptr);
     if (!window) { glfwTerminate(); return -1; }
     glfwMakeContextCurrent(window);
@@ -23,6 +25,7 @@ int main() {
     Gui gui(window);
     Renderer renderer;
     renderer.init(1280, 800);
+    Camera camera;
 
     MemristorParams params;
     PhysicsEngine physics(params);
@@ -44,12 +47,12 @@ int main() {
 
         renderer.begin_scene();
         renderer.update_filament(physics.w(), physics.power());
-        renderer.draw_scene();
+        renderer.draw_scene(camera);
         renderer.end_scene();
 
         gui.begin_frame();
         gui.draw_controls(params, waveform, physics);
-        gui.draw_viewport(renderer.viewport_texture(), renderer.viewport_size());
+        gui.draw_viewport(renderer.viewport_texture(), renderer.viewport_size(), camera);
         gui.draw_oscilloscope(physics.iv_point(voltage));
         gui.end_frame();
 
@@ -62,4 +65,3 @@ int main() {
     glfwTerminate();
     return 0;
 }
-

@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Shader.h"
+#include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 #include <vector>
@@ -30,6 +31,7 @@ void Renderer::destroy_fbo() {
 
 void Renderer::init(int width, int height) {
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     create_fbo(width, height);
     init_shaders();
     init_shapes();
@@ -46,15 +48,16 @@ void Renderer::begin_scene() {
 
 void Renderer::update_filament(double w, double power) { m_w = w; m_power = power; }
 
-void Renderer::draw_scene() {
+void Renderer::draw_scene(const Camera& cam) {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)m_size.x / (float)m_size.y, 0.1f, 100.0f);
-    glm::mat4 view = glm::lookAt(glm::vec3(2.2f, 2.0f, 2.2f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    float aspect = (float)m_size.x / (float)m_size.y;
+    glm::mat4 projection = cam.GetProjectionMatrix(aspect);
+    glm::mat4 view = cam.GetViewMatrix();
     glm::vec3 lightPos(3.0f, 3.0f, 3.0f);
-    glm::vec3 viewPos(2.2f, 2.0f, 2.2f);
+    glm::vec3 viewPos = glm::vec3(glm::inverse(view)[3]);
 
     float filamentRadius = 0.05f + (float)m_w * 0.35f;
     float visualHeat = std::min((float)(m_power / 0.1), 1.0f);

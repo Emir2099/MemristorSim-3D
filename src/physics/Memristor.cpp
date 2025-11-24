@@ -1,7 +1,11 @@
 #include "Memristor.h"
 #include <cmath>
+#include <random>
 
-PhysicsEngine::PhysicsEngine(const MemristorParams& p) : m_params(p), m_w(p.w_init), m_r(0.0), m_i(0.0), m_power(0.0) {}
+PhysicsEngine::PhysicsEngine(const MemristorParams& p) : m_params(p), m_w(p.w_init), m_r(0.0), m_i(0.0), m_power(0.0) {
+    std::random_device rd;
+    m_rng.seed(rd());
+}
 
 void PhysicsEngine::reset() { m_w = m_params.w_init; }
 
@@ -28,6 +32,8 @@ void PhysicsEngine::update(double dt, double voltage) {
     m_w = clamp01(w_new);
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
     m_i = voltage / m_r;
+    double noise = m_norm(m_rng) * (0.05 * m_i);
+    m_i += noise;
     m_power = voltage * voltage / m_r;
     double dT = m_power * m_params.theta_thermal;
     if (dT > m_params.T_critical) {
@@ -44,4 +50,3 @@ double PhysicsEngine::i() const { return m_i; }
 double PhysicsEngine::power() const { return m_power; }
 std::pair<double,double> PhysicsEngine::iv_point(double v) const { return {v, m_i}; }
 MemristorParams& PhysicsEngine::params() { return m_params; }
-

@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include "../render/Camera.h"
 
 Gui::Gui(GLFWwindow* window) : m_window(window) {
     IMGUI_CHECKVERSION();
@@ -51,10 +52,18 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, co
     ImGui::End();
 }
 
-void Gui::draw_viewport(unsigned int texture, glm::ivec2 size) {
+void Gui::draw_viewport(unsigned int texture, glm::ivec2 size, Camera& camera) {
     ImGui::Begin("Viewport");
-    ImVec2 avail = ImGui::GetContentRegionAvail();
-    ImGui::Image((void*)(intptr_t)texture, {avail.x, avail.y}, {0,1},{1,0});
+    ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+    ImGui::Image((void*)(intptr_t)texture, {viewportSize.x, viewportSize.y}, {0,1},{1,0});
+    if (ImGui::IsItemHovered()) {
+        float wheel = ImGui::GetIO().MouseWheel;
+        if (wheel != 0.0f) camera.ProcessMouseScroll(wheel);
+        if (ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
+            ImVec2 delta = ImGui::GetIO().MouseDelta;
+            camera.ProcessMouseDrag(delta.x, delta.y);
+        }
+    }
     ImGui::End();
 }
 
