@@ -1,6 +1,8 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "Camera.h"
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 #include <vector>
@@ -69,6 +71,8 @@ void Renderer::draw_scene(const Camera& cam) {
     shaderFilament.setFloat("u_Power", visualHeat);
     shaderFilament.setVec3("u_LightPos", lightPos);
     shaderFilament.setVec3("u_ViewPos", viewPos);
+    shaderFilament.setFloat("u_Time", (float)glfwGetTime());
+    shaderFilament.setFloat("u_StateW", (float)m_w);
 
     glm::mat4 model(1.0f);
     model = glm::scale(model, glm::vec3(filamentRadius, 1.0f, filamentRadius));
@@ -90,6 +94,15 @@ void Renderer::draw_scene(const Camera& cam) {
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+    // Grid floor (after opaque objects, before transparency)
+    glDepthMask(GL_FALSE);
+    shaderGrid.use();
+    shaderGrid.setMat4("projection", projection);
+    shaderGrid.setMat4("view", view);
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDepthMask(GL_TRUE);
+
     shaderGlass.use();
     shaderGlass.setMat4("projection", projection);
     shaderGlass.setMat4("view", view);
@@ -109,8 +122,9 @@ GLuint Renderer::viewport_texture() const { return m_color; }
 glm::ivec2 Renderer::viewport_size() const { return m_size; }
 
 void Renderer::init_shaders() {
-    shaderFilament.load("shaders/basic.vert", "shaders/filament.frag");
+    shaderFilament.load("shaders/filament.vert", "shaders/filament.frag");
     shaderGlass.load("shaders/basic.vert", "shaders/glass.frag");
+    shaderGrid.load("shaders/grid.vert", "shaders/grid.frag");
 }
 
 void Renderer::init_shapes() {
@@ -200,4 +214,20 @@ void Renderer::init_shapes() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    float quadVertices[] = {
+        -1.0f, -1.0f, 0.0f,
+         1.0f, -1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f,
+    };
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 }

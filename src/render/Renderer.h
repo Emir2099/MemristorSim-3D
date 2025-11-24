@@ -30,4 +30,6 @@ private:
     int cylinderIndexCount = 0;
     Shader shaderFilament;
     Shader shaderGlass;
+    Shader shaderGrid;
+    GLuint quadVAO = 0, quadVBO = 0;
 };
