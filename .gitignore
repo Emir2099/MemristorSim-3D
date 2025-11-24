@@ -1,0 +1,49 @@
+# Build output
+/build/
+/bin/
+/out/
+/dist/
+/Debug/
+/Release/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+*.ninja
+.ninja_deps
+.ninja_log
+compile_commands.json
+
+# Objects & libraries
+*.obj
+*.o
+*.a
+*.lib
+*.exp
+*.pdb
+*.ilk
+
+# Executables & shared libs
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs & caches
+*.log
+*.tmp
+*.cache
+
+# IDE & editor
+.vscode/
+.vs/
+*.user
+*.suo
+
+# App runtime config
+imgui.ini
+
+# OS junk
+Thumbs.db
+.DS_Store
+
+todo.md
