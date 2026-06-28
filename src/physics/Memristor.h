@@ -7,8 +7,8 @@
 struct MemristorParams {
     double v_off = 1.0;
     double v_on = -1.0;
-    double k_off = 100.0;
-    double k_on = -100.0;
+    double k_off = -100.0;
+    double k_on = 100.0;
     double alpha_off = 3.0;
     double alpha_on = 3.0;
     double R_off = 10000.0;
@@ -28,6 +28,7 @@ public:
     double r() const;
     double i() const;
     double power() const;
+    double dT() const;
     std::pair<double,double> iv_point(double v) const;
     MemristorParams& params();
     void set_params(const MemristorParams& p);
@@ -37,10 +38,11 @@ private:
     double m_r;
     double m_i;
     double m_power;
+    double m_dT;
     std::default_random_engine m_rng;
     std::normal_distribution<double> m_norm{0.0, 1.0};
-    double dw_dt(double v, double w) const;
-    double rk4(double dt, double v, double w0) const;
+    double get_dw_dt(double v, double w, double dT) const;
+    double rk4(double dt, double v, double w0, double dT) const;
 };
 
 struct MaterialPreset {
@@ -52,9 +54,9 @@ class MemristorLibrary {
 public:
     static std::map<std::string, MemristorParams> GetPresets() {
         std::map<std::string, MemristorParams> presets;
-        MemristorParams ag_si; ag_si.v_on = -1.2; ag_si.v_off = 1.0; ag_si.k_on = -1000.0; ag_si.k_off = 1000.0; ag_si.alpha_on = 3.0; ag_si.alpha_off = 3.0; ag_si.R_on = 50.0; ag_si.R_off = 15000.0; presets["Ag/a-Si (Fast)"] = ag_si;
-        MemristorParams hfox; hfox.v_on = -0.8; hfox.v_off = 0.8; hfox.k_on = -100.0; hfox.k_off = 100.0; hfox.alpha_on = 4.0; hfox.alpha_off = 4.0; hfox.R_on = 100.0; hfox.R_off = 20000.0; presets["HfOx (Standard)"] = hfox;
-        MemristorParams linear; linear.v_on = -0.1; linear.v_off = 0.1; linear.k_on = -10.0; linear.k_off = 10.0; linear.alpha_on = 1.0; linear.alpha_off = 1.0; linear.R_on = 100.0; linear.R_off = 5000.0; presets["Linear Drift (Edu)"] = linear;
+        MemristorParams ag_si; ag_si.v_on = -1.2; ag_si.v_off = 1.0; ag_si.k_on = 1000.0; ag_si.k_off = -1000.0; ag_si.alpha_on = 3.0; ag_si.alpha_off = 3.0; ag_si.R_on = 50.0; ag_si.R_off = 15000.0; presets["Ag/a-Si (Fast)"] = ag_si;
+        MemristorParams hfox; hfox.v_on = -0.8; hfox.v_off = 0.8; hfox.k_on = 100.0; hfox.k_off = -100.0; hfox.alpha_on = 4.0; hfox.alpha_off = 4.0; hfox.R_on = 100.0; hfox.R_off = 20000.0; presets["HfOx (Standard)"] = hfox;
+        MemristorParams linear; linear.v_on = -0.1; linear.v_off = 0.1; linear.k_on = 10.0; linear.k_off = -10.0; linear.alpha_on = 1.0; linear.alpha_off = 1.0; linear.R_on = 100.0; linear.R_off = 5000.0; presets["Linear Drift (Edu)"] = linear;
         return presets;
     }
 };

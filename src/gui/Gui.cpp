@@ -75,11 +75,12 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
         ImGui::DragFloat("Pulse Width (s)", (float*)&ps.pulse_width, 0.01f, 0.01f, 2.0f);
         ImGui::Unindent();
     }
-    ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, -1000.0f, -1.0f);
+    ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, 1.0f, 1000.0f);
     ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -10.0f, -0.1f);
     ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.6f");
     if (ImGui::Button("Reset Device")) { physics.reset(); }
     ImGui::Text("w=%.3f R=%.1f I=%.6f P=%.6f", physics.w(), physics.r(), physics.i(), physics.power());
+    physics.set_params(params);
     ImGui::End();
 }
 
