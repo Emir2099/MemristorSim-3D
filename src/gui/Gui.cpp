@@ -124,7 +124,12 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
     if (m_crossbarMode) {
         // Crossbar Array Configuration
         if (ImGui::CollapsingHeader("Synaptic Weight Matrix (Conductance G)", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::Text("Heatmap of Synaptic Connections (w_ij):");
+            ImGui::Checkbox("Show Sneak-Path Leakage Currents", &m_show_sneak_paths);
+            if (m_show_sneak_paths) {
+                ImGui::TextColored(ImVec4(0.0f, 0.9f, 0.4f, 1.0f), "Green: Sneak paths/parasitic leakage. Orange/Yellow: Signal path.");
+            } else {
+                ImGui::Text("Heatmap of Synaptic Connections (w_ij):");
+            }
             ImGui::Spacing();
             
             float cellSize = ImGui::GetContentRegionAvail().x / 8.5f;
@@ -133,8 +138,21 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
             for (int r = 0; r < 8; ++r) {
                 for (int c = 0; c < 8; ++c) {
                     double w_val = m_crossbar.w(r, c);
-                    // Color goes from dark blue/grey (OFF) to bright purple/violet (ON)
-                    ImVec4 cell_col = ImVec4(w_val * 0.6f + 0.1f, 0.15f, w_val * 0.8f + 0.2f, 1.0f);
+                    ImVec4 cell_col;
+                    if (m_show_sneak_paths) {
+                        double cell_i = std::fabs(m_crossbar.i(r, c));
+                        if (cell_i > 1e-4) {
+                            float factor = (float)std::min(1.0, (cell_i - 1e-4) / 1e-3);
+                            cell_col = ImVec4(1.0f, 0.4f + factor * 0.5f, factor * 0.2f, 1.0f);
+                        } else if (cell_i > 1e-8) {
+                            float factor = (float)std::min(1.0, std::log10(cell_i / 1e-8) / 4.0);
+                            cell_col = ImVec4(0.0f, 0.2f + factor * 0.7f, 0.1f + factor * 0.2f, 1.0f);
+                        } else {
+                            cell_col = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+                        }
+                    } else {
+                        cell_col = ImVec4(w_val * 0.6f + 0.1f, 0.15f, w_val * 0.8f + 0.2f, 1.0f);
+                    }
                     
                     ImGui::PushStyleColor(ImGuiCol_Button, cell_col);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(cell_col.x + 0.1f, cell_col.y + 0.1f, cell_col.z + 0.1f, 1.0f));

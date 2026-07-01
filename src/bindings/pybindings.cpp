@@ -78,6 +78,7 @@ PYBIND11_MODULE(memristorsim, m) {
         .def("differential_outputs", &CrossbarArray::differential_outputs)
         .def("w", &CrossbarArray::w)
         .def("r", &CrossbarArray::r)
+        .def("i", &CrossbarArray::i)
         .def("power", &CrossbarArray::power)
         .def("dT", &CrossbarArray::dT)
         .def("get_device", &CrossbarArray::get_device, py::return_value_policy::reference_internal)

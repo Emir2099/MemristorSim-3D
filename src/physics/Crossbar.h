@@ -73,6 +73,10 @@ public:
         return m_devices[row][col].power();
     }
     
+    double i(int row, int col) const {
+        return m_devices[row][col].i();
+    }
+    
     double dT(int row, int col) const {
         return m_devices[row][col].dT();
     }

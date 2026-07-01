@@ -25,5 +25,6 @@ public:
 private:
     GLFWwindow* m_window;
     bool m_crossbarMode = false;
+    bool m_show_sneak_paths = false;
     CrossbarArray m_crossbar;
 };
