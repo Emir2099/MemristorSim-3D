@@ -15,7 +15,73 @@ Gui::Gui(GLFWwindow* window) : m_window(window) {
     ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    ImGui::StyleColorsDark();
+    
+    // Style settings
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowRounding = 6.0f;
+    style.ChildRounding = 6.0f;
+    style.FrameRounding = 6.0f;
+    style.PopupRounding = 6.0f;
+    style.ScrollbarRounding = 6.0f;
+    style.GrabRounding = 6.0f;
+    style.TabRounding = 6.0f;
+    style.WindowBorderSize = 1.0f;
+    style.FrameBorderSize = 0.0f;
+    style.ItemSpacing = ImVec2(8.0f, 6.0f);
+    style.WindowPadding = ImVec2(10.0f, 10.0f);
+    style.FramePadding = ImVec2(6.0f, 4.0f);
+    
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_Text]                   = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
+    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+    colors[ImGuiCol_WindowBg]               = ImVec4(0.09f, 0.10f, 0.12f, 1.00f); // Deep Carbon
+    colors[ImGuiCol_ChildBg]                = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+    colors[ImGuiCol_PopupBg]                = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+    colors[ImGuiCol_Border]                 = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_FrameBg]                = ImVec4(0.16f, 0.17f, 0.20f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.22f, 0.24f, 0.28f, 1.00f);
+    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.28f, 0.30f, 0.35f, 1.00f);
+    colors[ImGuiCol_TitleBg]                = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.15f, 0.17f, 0.20f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.09f, 0.10f, 0.12f, 1.00f);
+    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.24f, 0.26f, 0.31f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.30f, 0.32f, 0.38f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.37f, 0.40f, 0.47f, 1.00f);
+    colors[ImGuiCol_CheckMark]              = ImVec4(0.55f, 0.45f, 0.90f, 1.00f); // Glowing Violet
+    colors[ImGuiCol_SliderGrab]             = ImVec4(0.55f, 0.45f, 0.90f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.65f, 0.55f, 0.95f, 1.00f);
+    colors[ImGuiCol_Button]                 = ImVec4(0.22f, 0.25f, 0.35f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.30f, 0.35f, 0.50f, 1.00f);
+    colors[ImGuiCol_ButtonActive]           = ImVec4(0.40f, 0.45f, 0.65f, 1.00f);
+    colors[ImGuiCol_Header]                 = ImVec4(0.16f, 0.20f, 0.30f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.22f, 0.27f, 0.40f, 1.00f);
+    colors[ImGuiCol_HeaderActive]           = ImVec4(0.30f, 0.35f, 0.55f, 1.00f);
+    colors[ImGuiCol_Separator]              = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.30f, 0.35f, 0.50f, 1.00f);
+    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.40f, 0.45f, 0.65f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.24f, 0.27f, 0.38f, 1.00f);
+    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.35f, 0.40f, 0.55f, 1.00f);
+    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.45f, 0.50f, 0.70f, 1.00f);
+    colors[ImGuiCol_Tab]                    = ImVec4(0.14f, 0.15f, 0.18f, 1.00f);
+    colors[ImGuiCol_TabHovered]             = ImVec4(0.22f, 0.24f, 0.30f, 1.00f);
+    colors[ImGuiCol_TabActive]              = ImVec4(0.20f, 0.25f, 0.38f, 1.00f);
+    colors[ImGuiCol_TabUnfocused]           = ImVec4(0.10f, 0.11f, 0.13f, 1.00f);
+    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.14f, 0.15f, 0.18f, 1.00f);
+    colors[ImGuiCol_PlotLines]              = ImVec4(0.00f, 0.80f, 1.00f, 1.00f); // Bright Cyan
+    colors[ImGuiCol_PlotLinesHovered]       = ImVec4(0.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.80f, 0.00f, 1.00f);
+    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    
+    // Style settings for ImPlot
+    ImPlotStyle& plotStyle = ImPlot::GetStyle();
+    plotStyle.Colors[ImPlotCol_FrameBg] = ImVec4(0.12f, 0.13f, 0.16f, 1.00f);
+    plotStyle.Colors[ImPlotCol_PlotBg] = ImVec4(0.09f, 0.10f, 0.12f, 1.00f);
+    plotStyle.Colors[ImPlotCol_PlotBorder] = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 450");
 }
@@ -24,6 +90,9 @@ void Gui::begin_frame() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    
+    // Create a full-screen dockspace over the main viewport
+    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_None);
 }
 
 static int waveform_to_index(Waveform w) {
@@ -38,49 +107,322 @@ static Waveform index_to_waveform(int idx) {
 
 void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, PhysicsEngine& physics) {
     ImGui::Begin("Controls");
-    static std::string current_material = "Custom";
-    if (ImGui::BeginCombo("Material", current_material.c_str())) {
-        auto presets = MemristorLibrary::GetPresets();
-        for (auto const& kv : presets) {
-            const std::string& name = kv.first;
-            const MemristorParams& p = kv.second;
-            bool sel = (current_material == name);
-            if (ImGui::Selectable(name.c_str(), sel)) {
-                current_material = name;
-                physics.set_params(p);
-                params = physics.params();
-            }
-            if (sel) ImGui::SetItemDefaultFocus();
+    
+    // Switch Mode Button
+    if (m_crossbarMode) {
+        if (ImGui::Button("<< Switch to Bipolar Single Device Simulator", ImVec2(-1.0f, 30.0f))) {
+            m_crossbarMode = false;
         }
-        ImGui::EndCombo();
+    } else {
+        if (ImGui::Button(">> Switch to 8x8 Neuromorphic Crossbar (CIM)", ImVec2(-1.0f, 30.0f))) {
+            m_crossbarMode = true;
+        }
     }
     ImGui::Separator();
-    int wf = waveform_to_index(waveform.waveform());
-    const char* items[] = {"DC","Sine","Triangle","Pulse","RRAM Sequence"};
-    ImGui::Combo("Input", &wf, items, 5);
-    waveform.set_waveform(index_to_waveform(wf));
-    double amp = waveform.amplitude();
-    double freq = waveform.frequency();
-    ImGui::DragFloat("Amplitude (V)", (float*)&amp, 0.1f, -100.0f, 100.0f);
-    ImGui::DragFloat("Frequency (Hz)", (float*)&freq, 0.1f, 0.01f, 1000.0f);
-    waveform.set_amplitude(amp);
-    waveform.set_frequency(freq);
-    if (waveform.waveform() == Waveform::RRAM_Sequence) {
-        ImGui::Indent();
-        ImGui::TextColored(ImVec4(1,1,0,1), "Memory Cycle Config");
-        PulseSettings& ps = waveform.pulse_settings();
-        ImGui::DragFloat("V_SET (Write)", (float*)&ps.v_set, 0.01f, 0.0f, 5.0f);
-        ImGui::DragFloat("V_RESET (Erase)", (float*)&ps.v_reset, 0.01f, -5.0f, 0.0f);
-        ImGui::DragFloat("V_READ (Check)", (float*)&ps.v_read, 0.01f, 0.0f, 1.0f);
-        ImGui::DragFloat("Pulse Width (s)", (float*)&ps.pulse_width, 0.01f, 0.01f, 2.0f);
-        ImGui::Unindent();
+    
+    if (m_crossbarMode) {
+        // Crossbar Array Configuration
+        if (ImGui::CollapsingHeader("Synaptic Weight Matrix (Conductance G)", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("Heatmap of Synaptic Connections (w_ij):");
+            ImGui::Spacing();
+            
+            float cellSize = ImGui::GetContentRegionAvail().x / 8.5f;
+            if (cellSize < 20.0f) cellSize = 20.0f;
+            
+            for (int r = 0; r < 8; ++r) {
+                for (int c = 0; c < 8; ++c) {
+                    double w_val = m_crossbar.w(r, c);
+                    // Color goes from dark blue/grey (OFF) to bright purple/violet (ON)
+                    ImVec4 cell_col = ImVec4(w_val * 0.6f + 0.1f, 0.15f, w_val * 0.8f + 0.2f, 1.0f);
+                    
+                    ImGui::PushStyleColor(ImGuiCol_Button, cell_col);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(cell_col.x + 0.1f, cell_col.y + 0.1f, cell_col.z + 0.1f, 1.0f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(cell_col.x + 0.2f, cell_col.y + 0.2f, cell_col.z + 0.2f, 1.0f));
+                    
+                    char cellId[16];
+                    sprintf(cellId, "##cell_%d_%d", r, c);
+                    if (ImGui::Button(cellId, ImVec2(cellSize, cellSize))) {
+                        // Toggle synaptic state directly
+                        m_crossbar.program_cell(r, c, w_val > 0.5 ? 0.0 : 1.0);
+                    }
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::BeginTooltip();
+                        ImGui::Text("Synapse (%d, %d)", r, c);
+                        ImGui::Text("State (w): %.3f", w_val);
+                        ImGui::Text("Resistance: %.1f Ohms", m_crossbar.r(r, c));
+                        ImGui::Text("Power: %.6f W", m_crossbar.power(r, c));
+                        ImGui::Text("Temp Rise: %.1f K", m_crossbar.dT(r, c));
+                        ImGui::EndTooltip();
+                    }
+                    
+                    ImGui::PopStyleColor(3);
+                    if (c < 7) ImGui::SameLine();
+                }
+            }
+            
+            ImGui::Spacing();
+            ImGui::Text("Legend: "); ImGui::SameLine();
+            ImGui::TextColored(ImVec4(0.1f, 0.15f, 0.2f, 1.0f), "OFF (0)"); ImGui::SameLine();
+            ImGui::Text(" -> "); ImGui::SameLine();
+            ImGui::TextColored(ImVec4(0.7f, 0.15f, 1.0f, 1.0f), "ON (1)");
+            
+            ImGui::Spacing();
+            
+            // Synapse preset buttons
+            ImGui::Text("Synaptic Programming Preset Kernels:");
+            if (ImGui::Button("Clear Array (All OFF)", ImVec2(ImGui::GetContentRegionAvail().x * 0.48f, 24.0f))) {
+                for (int r = 0; r < 8; ++r) {
+                    for (int c = 0; c < 8; ++c) m_crossbar.program_cell(r, c, 0.0);
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Set Synapse Diagonal", ImVec2(ImGui::GetContentRegionAvail().x * 0.96f, 24.0f))) {
+                for (int r = 0; r < 8; ++r) {
+                    for (int c = 0; c < 8; ++c) {
+                        m_crossbar.program_cell(r, c, r == c ? 1.0 : 0.0);
+                    }
+                }
+            }
+            if (ImGui::Button("Randomize Synaptic Weights", ImVec2(-1.0f, 24.0f))) {
+                std::default_random_engine rng(std::random_device{}());
+                std::uniform_real_distribution<double> dist(0.0, 1.0);
+                for (int r = 0; r < 8; ++r) {
+                    for (int c = 0; c < 8; ++c) m_crossbar.program_cell(r, c, dist(rng));
+                }
+            }
+        }
+        
+        if (ImGui::CollapsingHeader("Analog Vector-Matrix Multiplication (CIM)", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("Row Input Voltages (V_wl):");
+            std::vector<double> current_inputs = m_crossbar.inputs();
+            
+            ImGui::Columns(2, "WL_Inputs", false);
+            ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() * 0.5f);
+            
+            for (int i = 0; i < 8; ++i) {
+                char wlId[32];
+                sprintf(wlId, "V_WL[%d]", i);
+                float val = (float)current_inputs[i];
+                if (ImGui::SliderFloat(wlId, &val, -2.0f, 2.0f, "%.2f V")) {
+                    current_inputs[i] = val;
+                }
+                ImGui::NextColumn();
+            }
+            ImGui::Columns(1);
+            m_crossbar.set_inputs(current_inputs);
+            
+            ImGui::Separator();
+            ImGui::Text("Column Output Currents (I_bl):");
+            const std::vector<double>& current_outputs = m_crossbar.outputs();
+            
+            ImGui::Columns(4, "BL_Outputs", false);
+            for (int j = 0; j < 8; ++j) {
+                ImGui::Text("I_BL[%d]:", j); ImGui::NextColumn();
+                ImGui::TextColored(ImVec4(0.0f, 0.9f, 0.4f, 1.0f), "%.4f A", current_outputs[j]); ImGui::NextColumn();
+            }
+            ImGui::Columns(1);
+        }
+        
+        if (ImGui::CollapsingHeader("Neuromorphic Edge Detection (Sobel Filter)", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::TextWrapped("Memristive crossbar arrays can perform analog convolution in a single step. Here we demonstrate Sobel edge filtering on a test pattern:");
+            
+            static int kernel_type = 0; // 0 = Sobel X, 1 = Sobel Y
+            const char* kernels[] = {"Sobel X (Vertical Edges)", "Sobel Y (Horizontal Edges)"};
+            ImGui::Combo("Filter Kernel", &kernel_type, kernels, 2);
+            
+            if (ImGui::Button("Run Neuromorphic Convolution", ImVec2(-1.0f, 28.0f))) {
+                std::vector<std::vector<double>> input_img = {
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1},
+                    {0, 0, 0, 0, 1, 1, 1, 1}
+                };
+                
+                std::vector<std::vector<double>> sobelX = {
+                    {-1, 0, 1},
+                    {-2, 0, 2},
+                    {-1, 0, 1}
+                };
+                std::vector<std::vector<double>> sobelY = {
+                    {-1, -2, -1},
+                    { 0,  0,  0},
+                    { 1,  2,  1}
+                };
+                
+                auto selected_k = (kernel_type == 0) ? sobelX : sobelY;
+                
+                m_crossbar.m_edge_detected_input = input_img;
+                m_crossbar.m_kernel_weights = selected_k;
+                
+                for (int r = 0; r < 8; ++r) {
+                    for (int c = 0; c < 8; ++c) {
+                        m_crossbar.m_edge_detected_output[r][c] = 0.0;
+                    }
+                }
+                
+                for (int r = 1; r < 7; ++r) {
+                    for (int c = 1; c < 7; ++c) {
+                        double sum = 0.0;
+                        for (int kr = -1; kr <= 1; ++kr) {
+                            for (int kc = -1; kc <= 1; ++kc) {
+                                sum += input_img[r + kr][c + kc] * selected_k[kr + 1][kc + 1];
+                            }
+                        }
+                        m_crossbar.m_edge_detected_output[r][c] = std::abs(sum) / 4.0;
+                    }
+                }
+                
+                // Visually program the weights into the crossbar heatmap
+                for (int r = 0; r < 8; ++r) {
+                    for (int c = 0; c < 8; ++c) {
+                        if (c < 3 && r < 3) {
+                            double mapped_w = (selected_k[r][c] + 2.0) / 4.0;
+                            m_crossbar.program_cell(r, c, mapped_w);
+                        } else {
+                            m_crossbar.program_cell(r, c, 0.0);
+                        }
+                    }
+                }
+            }
+            
+            if (!m_crossbar.m_edge_detected_output.empty() && m_crossbar.m_edge_detected_output[1][1] != 0.0) {
+                ImGui::Spacing();
+                ImGui::Text("Conv Input (Contrast Step) -> Edge Output:");
+                
+                float pixSize = ImGui::GetContentRegionAvail().x / 18.0f;
+                if (pixSize < 10.0f) pixSize = 10.0f;
+                
+                for (int r = 0; r < 8; ++r) {
+                    for (int c = 0; c < 8; ++c) {
+                        double val = m_crossbar.m_edge_detected_input[r][c];
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(val, val, val, 1.0f));
+                        ImGui::Button("##in_pix", ImVec2(pixSize, pixSize));
+                        ImGui::PopStyleColor();
+                        ImGui::SameLine();
+                    }
+                    ImGui::Dummy(ImVec2(10.0f, 0.0f)); ImGui::SameLine();
+                    for (int c = 0; c < 8; ++c) {
+                        double val = m_crossbar.m_edge_detected_output[r][c];
+                        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, val * 0.8f, val, 1.0f));
+                        ImGui::Button("##out_pix", ImVec2(pixSize, pixSize));
+                        ImGui::PopStyleColor();
+                        if (c < 7) ImGui::SameLine();
+                    }
+                }
+            }
+        }
+        
+        ImGui::Spacing();
+        if (ImGui::Button("Reset Crossbar Array", ImVec2(-1.0f, 25.0f))) {
+            m_crossbar.reset();
+        }
+    } else {
+        // Single Device Configuration (Original controls)
+        if (ImGui::CollapsingHeader("Excitation & Presets", ImGuiTreeNodeFlags_DefaultOpen)) {
+            static std::string current_material = "Custom";
+            if (ImGui::BeginCombo("Material", current_material.c_str())) {
+                auto presets = MemristorLibrary::GetPresets();
+                for (auto const& kv : presets) {
+                    const std::string& name = kv.first;
+                    const MemristorParams& p = kv.second;
+                    bool sel = (current_material == name);
+                    if (ImGui::Selectable(name.c_str(), sel)) {
+                        current_material = name;
+                        physics.set_params(p);
+                        params = physics.params();
+                    }
+                    if (sel) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+            
+            ImGui::Separator();
+            
+            int wf = waveform_to_index(waveform.waveform());
+            const char* items[] = {"DC","Sine","Triangle","Pulse","RRAM Sequence"};
+            if (ImGui::Combo("Input", &wf, items, 5)) {
+                waveform.set_waveform(index_to_waveform(wf));
+            }
+            
+            double amp = waveform.amplitude();
+            double freq = waveform.frequency();
+            if (ImGui::DragFloat("Amplitude (V)", (float*)&amp, 0.05f, -10.0f, 10.0f, "%.2f V")) {
+                waveform.set_amplitude(amp);
+            }
+            if (ImGui::DragFloat("Frequency (Hz)", (float*)&freq, 0.1f, 0.01f, 100.0f, "%.2f Hz")) {
+                waveform.set_frequency(freq);
+            }
+            
+            if (waveform.waveform() == Waveform::RRAM_Sequence) {
+                ImGui::Separator();
+                ImGui::TextColored(ImVec4(0.9f, 0.8f, 0.1f, 1.0f), "Memory Cycle Config");
+                PulseSettings& ps = waveform.pulse_settings();
+                ImGui::DragFloat("V_SET (Write)", (float*)&ps.v_set, 0.05f, 0.0f, 5.0f, "%.2f V");
+                ImGui::DragFloat("V_RESET (Erase)", (float*)&ps.v_reset, 0.05f, -5.0f, 0.0f, "%.2f V");
+                ImGui::DragFloat("V_READ (Check)", (float*)&ps.v_read, 0.01f, 0.0f, 1.0f, "%.2f V");
+                ImGui::DragFloat("Pulse Width (s)", (float*)&ps.pulse_width, 0.05f, 0.01f, 2.0f, "%.2f s");
+            }
+        }
+        
+        if (ImGui::CollapsingHeader("Physical Constants", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, 1.0f, 1000.0f, "%.1f");
+            ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -5.0f, -0.1f, "%.2f V");
+            ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.5f A");
+        }
+        
+        if (ImGui::CollapsingHeader("Real-Time Telemetry", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Text("Filament State (w): %.3f", physics.w());
+            ImGui::ProgressBar((float)physics.w(), ImVec2(-1.0f, 16.0f), "");
+            
+            ImGui::Columns(2, "TelemetryColumns", false);
+            ImGui::SetColumnWidth(0, 120.0f);
+            
+            ImGui::Text("Resistance (R):"); ImGui::NextColumn();
+            ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "%.1f Ohms", physics.r()); ImGui::NextColumn();
+            
+            ImGui::Text("Current (I):"); ImGui::NextColumn();
+            ImGui::TextColored(ImVec4(0.0f, 0.9f, 0.4f, 1.0f), "%.6f A", physics.i()); ImGui::NextColumn();
+            
+            ImGui::Text("Power (P):"); ImGui::NextColumn();
+            ImGui::TextColored(ImVec4(0.9f, 0.8f, 0.1f, 1.0f), "%.6f W", physics.power()); ImGui::NextColumn();
+            
+            ImGui::Text("Temp Rise (dT):"); ImGui::NextColumn();
+            double temp = physics.dT();
+            ImVec4 temp_color = ImVec4(0.2f, 0.9f, 0.4f, 1.0f);
+            if (temp > params.T_critical) temp_color = ImVec4(1.0f, 0.1f, 0.1f, 1.0f);
+            else if (temp > params.T_critical * 0.7) temp_color = ImVec4(1.0f, 0.6f, 0.0f, 1.0f);
+            ImGui::TextColored(temp_color, "%.1f K / %.1f K", temp, params.T_critical); ImGui::NextColumn();
+            
+            ImGui::Columns(1);
+            
+            double current_mag = std::fabs(physics.i());
+            bool is_compliant = (current_mag >= params.I_compliance * 0.99);
+            bool is_thermal_decay = (temp > params.T_critical);
+            
+            if (is_compliant || is_thermal_decay) {
+                ImGui::Spacing();
+                ImGui::Text("Status Indicators:");
+                if (is_compliant) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.0f, 1.0f), " -> COMPLIANCE CURRENT ACTIVE");
+                }
+                if (is_thermal_decay) {
+                    ImGui::TextColored(ImVec4(1.0f, 0.1f, 0.1f, 1.0f), " -> THERMAL FILAMENT MELTDOWN");
+                }
+            }
+            
+            ImGui::Spacing();
+            if (ImGui::Button("Reset Device", ImVec2(-1.0f, 25.0f))) {
+                physics.reset();
+            }
+        }
     }
-    ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, 1.0f, 1000.0f);
-    ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -10.0f, -0.1f);
-    ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.6f");
-    if (ImGui::Button("Reset Device")) { physics.reset(); }
-    ImGui::Text("w=%.3f R=%.1f I=%.6f P=%.6f", physics.w(), physics.r(), physics.i(), physics.power());
+    
     physics.set_params(params);
+    m_crossbar.set_params(params);
     ImGui::End();
 }
 
@@ -123,17 +465,30 @@ void Gui::draw_oscilloscope(double time_now, double voltage_now, const PhysicsEn
     ImGui::Begin("Oscilloscope");
     static TraceBuffer buf(4000);
     buf.Add((float)time_now, (float)voltage_now, (float)physics.i(), (float)physics.r());
-    if (ImPlot::BeginPlot("Hysteresis Loop")) {
+    
+    if (ImPlot::BeginPlot("Hysteresis Loop", ImVec2(-1.0f, -40.0f))) {
         ImPlot::SetupAxes("Voltage (V)", "Current (A)");
+        
         if (buf.Data.size() > 1) {
             std::vector<float> vx(buf.Data.size());
             std::vector<float> iy(buf.Data.size());
-            for (int i = 0; i < buf.Data.size(); ++i) { vx[i] = buf.Data[i].v; iy[i] = buf.Data[i].i; }
-            ImPlot::PlotLine("Memristor", vx.data(), iy.data(), (int)vx.size());
+            for (int i = 0; i < buf.Data.size(); ++i) { 
+                vx[i] = buf.Data[i].v; 
+                iy[i] = buf.Data[i].i; 
+            }
+            
+            // Set style properties on ImPlotSpec
+            ImPlotSpec spec;
+            spec.LineColor = ImVec4(0.0f, 0.8f, 1.0f, 1.0f); // Neon Cyan
+            spec.LineWeight = 2.5f;
+            
+            ImPlot::PlotLine("I-V Curve", vx.data(), iy.data(), (int)vx.size(), spec);
         }
+        
         ImPlot::EndPlot();
     }
-    if (ImGui::Button("Export CSV")) { SaveToCSV(buf); }
+    
+    if (ImGui::Button("Export CSV", ImVec2(-1.0f, 25.0f))) { SaveToCSV(buf); }
     ImGui::End();
 }
 

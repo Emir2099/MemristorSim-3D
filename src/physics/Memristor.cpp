@@ -94,3 +94,9 @@ double PhysicsEngine::dT() const { return m_dT; }
 std::pair<double,double> PhysicsEngine::iv_point(double v) const { return {v, m_i}; }
 MemristorParams& PhysicsEngine::params() { return m_params; }
 void PhysicsEngine::set_params(const MemristorParams& p) { m_params = p; }
+void PhysicsEngine::set_w(double w) {
+    m_w = w < 0.0 ? 0.0 : (w > 1.0 ? 1.0 : w);
+    double r_on = m_params.R_on;
+    double r_off = m_params.R_off;
+    m_r = r_on + (r_off - r_on) * (1.0 - m_w);
+}

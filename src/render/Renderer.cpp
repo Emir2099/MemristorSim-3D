@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "Camera.h"
+#include "physics/Crossbar.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -81,17 +82,25 @@ void Renderer::draw_scene(const Camera& cam) {
     glBindVertexArray(cylinderVAO);
     glDrawElements(GL_TRIANGLES, cylinderIndexCount, GL_UNSIGNED_INT, 0);
 
+    // Draw Top Electrode (Polished Gold, no thermal glow or gap discard)
     glm::mat4 cubeModelTop(1.0f);
     cubeModelTop = glm::translate(cubeModelTop, glm::vec3(0.0f, 0.55f, 0.0f));
     cubeModelTop = glm::scale(cubeModelTop, glm::vec3(1.0f, 0.1f, 1.0f));
     shaderFilament.setMat4("model", cubeModelTop);
+    shaderFilament.setVec3("u_Color", glm::vec3(1.0f, 0.78f, 0.15f));
+    shaderFilament.setFloat("u_Power", 0.0f);
+    shaderFilament.setFloat("u_Conductance", 1.0f);
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
+    // Draw Bottom Electrode (Polished Platinum/Silver, no thermal glow or gap discard)
     glm::mat4 cubeModelBot(1.0f);
     cubeModelBot = glm::translate(cubeModelBot, glm::vec3(0.0f, -0.55f, 0.0f));
     cubeModelBot = glm::scale(cubeModelBot, glm::vec3(1.0f, 0.1f, 1.0f));
     shaderFilament.setMat4("model", cubeModelBot);
+    shaderFilament.setVec3("u_Color", glm::vec3(0.75f, 0.75f, 0.82f));
+    shaderFilament.setFloat("u_Power", 0.0f);
+    shaderFilament.setFloat("u_Conductance", 1.0f);
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -104,15 +113,121 @@ void Renderer::draw_scene(const Camera& cam) {
     glDrawArrays(GL_TRIANGLES, 0, 6);
     glDepthMask(GL_TRUE);
 
+    // Draw Oxide Layer with Glass Fresnel edge-glowing shader
     shaderGlass.use();
     shaderGlass.setMat4("projection", projection);
     shaderGlass.setMat4("view", view);
-    shaderGlass.setVec4("u_Color", glm::vec4(0.0f, 0.8f, 0.9f, 0.2f));
+    shaderGlass.setVec3("u_ViewPos", viewPos);
+    shaderGlass.setVec4("u_Color", glm::vec4(0.0f, 0.6f, 0.8f, 0.12f)); 
     glm::mat4 oxideModel(1.0f);
     oxideModel = glm::scale(oxideModel, glm::vec3(1.2f, 1.0f, 1.2f));
     shaderGlass.setMat4("model", oxideModel);
     glBindVertexArray(cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+}
+
+void Renderer::draw_crossbar(const Camera& cam, const CrossbarArray& array) {
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    float aspect = (float)m_size.x / (float)m_size.y;
+    glm::mat4 projection = cam.GetProjectionMatrix(aspect);
+    glm::mat4 view = cam.GetViewMatrix();
+    glm::vec3 lightPos(3.0f, 3.0f, 3.0f);
+    glm::vec3 viewPos = glm::vec3(glm::inverse(view)[3]);
+
+    float gridSpacing = 0.35f;
+    float startOffset = -3.5f * gridSpacing; // Center the 8x8 grid around 0
+
+    // Draw Bottom Electrode Wires (8 horizontal bars running along X-axis)
+    shaderFilament.use();
+    shaderFilament.setMat4("projection", projection);
+    shaderFilament.setMat4("view", view);
+    shaderFilament.setVec3("u_Color", glm::vec3(0.75f, 0.75f, 0.82f)); 
+    shaderFilament.setFloat("u_Power", 0.0f);
+    shaderFilament.setFloat("u_Conductance", 1.0f);
+    shaderFilament.setVec3("u_LightPos", lightPos);
+    shaderFilament.setVec3("u_ViewPos", viewPos);
+    
+    glBindVertexArray(cubeVAO);
+    for (int i = 0; i < 8; ++i) {
+        float z = startOffset + i * gridSpacing;
+        glm::mat4 modelWire(1.0f);
+        modelWire = glm::translate(modelWire, glm::vec3(0.0f, -0.17f, z));
+        modelWire = glm::scale(modelWire, glm::vec3(gridSpacing * 9.0f, 0.03f, 0.08f));
+        shaderFilament.setMat4("model", modelWire);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    // Draw Top Electrode Wires (8 vertical bars running along Z-axis)
+    shaderFilament.setVec3("u_Color", glm::vec3(1.0f, 0.78f, 0.15f)); // Gold
+    for (int j = 0; j < 8; ++j) {
+        float x = startOffset + j * gridSpacing;
+        glm::mat4 modelWire(1.0f);
+        modelWire = glm::translate(modelWire, glm::vec3(x, 0.17f, 0.0f));
+        modelWire = glm::scale(modelWire, glm::vec3(0.08f, 0.03f, gridSpacing * 9.0f));
+        shaderFilament.setMat4("model", modelWire);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    // Draw 64 filaments at intersections
+    glBindVertexArray(cylinderVAO);
+    for (int i = 0; i < 8; ++i) {
+        float z = startOffset + i * gridSpacing;
+        for (int j = 0; j < 8; ++j) {
+            float x = startOffset + j * gridSpacing;
+            double w_val = array.w(i, j);
+            double pow_val = array.power(i, j);
+            
+            float filamentRadius = 0.008f + (float)w_val * 0.045f;
+            float visualHeat = std::min((float)(pow_val / 0.005), 1.0f);
+
+            shaderFilament.use();
+            shaderFilament.setMat4("projection", projection);
+            shaderFilament.setMat4("view", view);
+            shaderFilament.setVec3("u_Color", glm::vec3(0.8f, 0.8f, 0.9f));
+            shaderFilament.setFloat("u_Power", visualHeat);
+            shaderFilament.setFloat("u_Time", (float)glfwGetTime());
+            shaderFilament.setFloat("u_StateW", (float)w_val);
+            shaderFilament.setFloat("u_Conductance", (float)w_val);
+
+            glm::mat4 modelFil(1.0f);
+            modelFil = glm::translate(modelFil, glm::vec3(x, 0.0f, z));
+            modelFil = glm::scale(modelFil, glm::vec3(filamentRadius, 0.3f, filamentRadius));
+            shaderFilament.setMat4("model", modelFil);
+            glDrawElements(GL_TRIANGLES, cylinderIndexCount, GL_UNSIGNED_INT, 0);
+        }
+    }
+
+    // Draw Grid floor
+    glDepthMask(GL_FALSE);
+    shaderGrid.use();
+    shaderGrid.setMat4("projection", projection);
+    shaderGrid.setMat4("view", view);
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDepthMask(GL_TRUE);
+
+    // Draw 64 transparent oxide cubes at intersections
+    shaderGlass.use();
+    shaderGlass.setMat4("projection", projection);
+    shaderGlass.setMat4("view", view);
+    shaderGlass.setVec3("u_ViewPos", viewPos);
+    shaderGlass.setVec4("u_Color", glm::vec4(0.0f, 0.6f, 0.8f, 0.07f));
+    glBindVertexArray(cubeVAO);
+    
+    for (int i = 0; i < 8; ++i) {
+        float z = startOffset + i * gridSpacing;
+        for (int j = 0; j < 8; ++j) {
+            float x = startOffset + j * gridSpacing;
+            glm::mat4 modelOx(1.0f);
+            modelOx = glm::translate(modelOx, glm::vec3(x, 0.0f, z));
+            modelOx = glm::scale(modelOx, glm::vec3(0.12f, 0.3f, 0.12f));
+            shaderGlass.setMat4("model", modelOx);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+    }
 }
 
 void Renderer::end_scene() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }

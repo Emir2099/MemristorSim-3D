@@ -6,6 +6,8 @@
 #include "physics/Memristor.h"
 #include "utils/Waveform.h"
 
+#include "physics/Crossbar.h"
+
 class Gui {
 public:
     explicit Gui(GLFWwindow* window);
@@ -16,6 +18,12 @@ public:
     void draw_menu(MemristorParams& params, WaveformGenerator& waveform, PhysicsEngine& physics);
     void end_frame();
     void shutdown();
+    
+    bool crossbar_mode() const { return m_crossbarMode; }
+    const CrossbarArray& crossbar() const { return m_crossbar; }
+    CrossbarArray& crossbar() { return m_crossbar; }
 private:
     GLFWwindow* m_window;
+    bool m_crossbarMode = false;
+    CrossbarArray m_crossbar;
 };

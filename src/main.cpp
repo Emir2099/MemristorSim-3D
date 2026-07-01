@@ -56,12 +56,21 @@ int main() {
         double dt = now - lastTime;
         lastTime = now;
 
-        double voltage = waveform.get_voltage(now);
-        physics.update(dt, voltage);
+        double voltage = 0.0;
+        if (gui.crossbar_mode()) {
+            gui.crossbar().update(dt);
+        } else {
+            voltage = waveform.get_voltage(now);
+            physics.update(dt, voltage);
+        }
 
         renderer.begin_scene();
-        renderer.update_filament(physics.w(), physics.power());
-        renderer.draw_scene(camera);
+        if (gui.crossbar_mode()) {
+            renderer.draw_crossbar(camera, gui.crossbar());
+        } else {
+            renderer.update_filament(physics.w(), physics.power());
+            renderer.draw_scene(camera);
+        }
         renderer.end_scene();
 
         gui.begin_frame();

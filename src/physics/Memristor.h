@@ -32,6 +32,7 @@ public:
     std::pair<double,double> iv_point(double v) const;
     MemristorParams& params();
     void set_params(const MemristorParams& p);
+    void set_w(double w);
 private:
     MemristorParams m_params;
     double m_w;

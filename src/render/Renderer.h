@@ -10,6 +10,7 @@ public:
     void begin_scene();
     void update_filament(double w, double power);
     void draw_scene(const class Camera& cam);
+    void draw_crossbar(const class Camera& cam, const class CrossbarArray& array);
     void end_scene();
     void shutdown();
     GLuint viewport_texture() const;

@@ -19,8 +19,8 @@ void main(){
     if (pos.y < 0.45 && pos.y > -0.45) {
         float frequency = 10.0;
         float amplitude = 0.1 * (1.0 - stability);
-        pos.x += sin(pos.y * frequency + 1.0) * amplitude;
-        pos.z += cos(pos.y * frequency * 1.5) * amplitude;
+        pos.x += sin(pos.y * frequency + u_Time * 5.0) * amplitude;
+        pos.z += cos(pos.y * frequency * 1.5 + u_Time * 4.0) * amplitude;
     }
     FragPos = vec3(model * vec4(pos, 1.0));
     Normal = mat3(transpose(inverse(model))) * aNormal;
