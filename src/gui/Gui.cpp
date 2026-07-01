@@ -394,6 +394,25 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
             }
         }
         
+        if (ImGui::CollapsingHeader("Stochasticity & Telegraph Noise (RTN)", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Checkbox("Enable D2D & C2C Variability", &params.enable_variability);
+            if (params.enable_variability) {
+                ImGui::SliderFloat("D2D w_init sigma", (float*)&params.sigma_w_init, 0.01f, 0.2f, "%.3f");
+                ImGui::SliderFloat("D2D k_on/off sigma", (float*)&params.sigma_k_on, 0.05f, 0.5f, "%.2f");
+                ImGui::SliderFloat("C2C write noise (SDE)", (float*)&params.sigma_c2c, 0.005f, 0.1f, "%.3f");
+                ImGui::TextWrapped("Variability applies normal/log-normal scatter to device properties upon reset/creation.");
+            }
+            
+            ImGui::Separator();
+            ImGui::Checkbox("Enable Random Telegraph Noise (RTN)", &params.enable_rtn);
+            if (params.enable_rtn) {
+                ImGui::SliderFloat("RTN Amplitude", (float*)&params.rtn_amplitude, 0.005f, 0.15f, "%.3f");
+                ImGui::SliderFloat("Capture lifetime (tau_c)", (float*)&params.rtn_tau_c, 0.005f, 0.5f, "%.3f s");
+                ImGui::SliderFloat("Emission lifetime (tau_e)", (float*)&params.rtn_tau_e, 0.005f, 0.5f, "%.3f s");
+                ImGui::TextWrapped("RTN models discrete capture/emission events, visible as telegraph jumps on the I-V plot.");
+            }
+        }
+        
         if (ImGui::CollapsingHeader("Real-Time Telemetry", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::Text("Filament State (w): %.3f", physics.w());
             ImGui::ProgressBar((float)physics.w(), ImVec2(-1.0f, 16.0f), "");

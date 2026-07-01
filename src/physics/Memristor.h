@@ -25,6 +25,17 @@ struct MemristorParams {
     double gamma_sinh = 2.0;
     double beta_pf = 1.5;
     double beta_sc = 2.0;
+
+    // Stochasticity & RTN Parameters
+    bool enable_variability = false;
+    double sigma_w_init = 0.05;      // D2D variability of w_init (Normal)
+    double sigma_k_on = 0.15;        // D2D variability of k_on/k_off (Log-normal factor)
+    double sigma_c2c = 0.02;         // C2C write noise rate (SDE diffusion coefficient)
+
+    bool enable_rtn = false;
+    double rtn_amplitude = 0.03;     // RTN relative current fluctuation (e.g., 3%)
+    double rtn_tau_c = 0.05;         // Mean capture time (s)
+    double rtn_tau_e = 0.05;         // Mean emission time (s)
 };
 
 class PhysicsEngine {
@@ -43,15 +54,18 @@ public:
     void set_w(double w);
 private:
     MemristorParams m_params;
+    MemristorParams m_active_params;
     double m_w;
     double m_r;
     double m_i;
     double m_power;
     double m_dT;
+    int m_rtn_state = 0;
     std::default_random_engine m_rng;
     std::normal_distribution<double> m_norm{0.0, 1.0};
     double get_dw_dt(double v, double w, double dT) const;
     double rk4(double dt, double v, double w0, double dT) const;
+    void apply_d2d_variability();
 };
 
 struct MaterialPreset {

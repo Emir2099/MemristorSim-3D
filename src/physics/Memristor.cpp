@@ -2,38 +2,58 @@
 #include <cmath>
 #include <random>
 
-PhysicsEngine::PhysicsEngine(const MemristorParams& p) : m_params(p), m_w(p.w_init), m_r(0.0), m_i(0.0), m_power(0.0), m_dT(0.0) {
+PhysicsEngine::PhysicsEngine(const MemristorParams& p) 
+    : m_params(p), m_active_params(p), m_w(p.w_init), m_r(0.0), m_i(0.0), m_power(0.0), m_dT(0.0), m_rtn_state(0) {
     std::random_device rd;
     m_rng.seed(rd());
+    apply_d2d_variability();
+    m_w = m_active_params.w_init;
 }
 
 void PhysicsEngine::reset() { 
-    m_w = m_params.w_init; 
+    apply_d2d_variability();
+    m_w = m_active_params.w_init; 
     m_dT = 0.0;
+    m_rtn_state = 0;
 }
 
 static inline double clamp01(double x) { return x < 0.0 ? 0.0 : (x > 1.0 ? 1.0 : x); }
 
+void PhysicsEngine::apply_d2d_variability() {
+    m_active_params = m_params;
+    if (m_params.enable_variability) {
+        // D2D w_init: Normal distribution
+        double w_var = m_norm(m_rng) * m_params.sigma_w_init;
+        m_active_params.w_init = clamp01(m_params.w_init + w_var);
+
+        // D2D k_on, k_off: Log-normal distribution (exponential barrier changes)
+        double log_k_on_var = m_norm(m_rng) * m_params.sigma_k_on;
+        double log_k_off_var = m_norm(m_rng) * m_params.sigma_k_on;
+        m_active_params.k_on = m_params.k_on * std::pow(10.0, log_k_on_var);
+        m_active_params.k_off = m_params.k_off * std::pow(10.0, log_k_off_var);
+    }
+}
+
 double PhysicsEngine::get_dw_dt(double v, double w, double dT) const {
     double dw = 0.0;
-    if (v > m_params.v_off) {
+    if (v > m_active_params.v_off) {
         // RESET process: trying to turn OFF (w -> 0.0)
         // k_off is negative, so this term will be negative
-        dw = m_params.k_off * std::pow((v / m_params.v_off) - 1.0, m_params.alpha_off);
+        dw = m_active_params.k_off * std::pow((v / m_active_params.v_off) - 1.0, m_active_params.alpha_off);
         // Biolek window for w decreasing towards 0
         dw *= (1.0 - std::pow(w - 1.0, 8.0));
-    } else if (v < m_params.v_on) {
+    } else if (v < m_active_params.v_on) {
         // SET process: trying to turn ON (w -> 1.0)
         // k_on is positive, so this term will be positive
-        dw = m_params.k_on * std::pow((v / m_params.v_on) - 1.0, m_params.alpha_on);
+        dw = m_active_params.k_on * std::pow((v / m_active_params.v_on) - 1.0, m_active_params.alpha_on);
         // Biolek window for w increasing towards 1
         dw *= (1.0 - std::pow(w, 8.0));
     }
     
     // Smooth thermal dissolution: if temperature rise exceeds T_critical,
     // decay filament back to 0. Rate is proportional to excess temperature.
-    if (dT > m_params.T_critical) {
-        double thermal_decay = -std::abs(m_params.k_off) * ((dT - m_params.T_critical) / m_params.T_critical) * w;
+    if (dT > m_active_params.T_critical) {
+        double thermal_decay = -std::abs(m_active_params.k_off) * ((dT - m_active_params.T_critical) / m_active_params.T_critical) * w;
         dw += thermal_decay;
     }
     
@@ -53,11 +73,17 @@ void PhysicsEngine::update(double dt, double voltage) {
     
     // Integrate state variable w using RK4
     double w_new = rk4(dt, voltage, m_w, m_dT);
+    
+    // Apply C2C write noise (stochastic SDE term: sigma * sqrt(dt) * N(0, 1))
+    if (m_active_params.enable_variability) {
+        double c2c_noise = m_active_params.sigma_c2c * std::sqrt(dt) * m_norm(m_rng);
+        w_new += c2c_noise;
+    }
     m_w = clamp01(w_new);
     
     // State-based equivalent resistance
-    double r_on = m_params.R_on;
-    double r_off = m_params.R_off;
+    double r_on = m_active_params.R_on;
+    double r_off = m_active_params.R_off;
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
     
     // Calculate current using a highly realistic nonlinear conduction model
@@ -67,35 +93,52 @@ void PhysicsEngine::update(double dt, double voltage) {
     double abs_v = std::fabs(voltage);
     double sgn_v = (voltage > 0.0) ? 1.0 : ((voltage < 0.0) ? -1.0 : 0.0);
     
-    if (m_params.conduction_model == ConductionModel::Sinh) {
-        double gamma = m_params.gamma_sinh;
+    if (m_active_params.conduction_model == ConductionModel::Sinh) {
+        double gamma = m_active_params.gamma_sinh;
         double sinh_v = std::sinh(gamma * voltage);
         double sinh_1 = std::sinh(gamma);
         i_off = sinh_v / (r_off * sinh_1);
-    } else if (m_params.conduction_model == ConductionModel::PooleFrenkel) {
+    } else if (m_active_params.conduction_model == ConductionModel::PooleFrenkel) {
         // Poole-Frenkel Emission: ln(I/V) is proportional to sqrt(V)
-        i_off = (voltage / r_off) * std::exp(m_params.beta_pf * (std::sqrt(abs_v) - 1.0));
-    } else if (m_params.conduction_model == ConductionModel::Schottky) {
+        i_off = (voltage / r_off) * std::exp(m_active_params.beta_pf * (std::sqrt(abs_v) - 1.0));
+    } else if (m_active_params.conduction_model == ConductionModel::Schottky) {
         // Schottky Tunneling / Emission: ln(I) is proportional to sqrt(V)
-        i_off = (sgn_v / r_off) * std::exp(m_params.beta_sc * (std::sqrt(abs_v) - 1.0));
+        i_off = (sgn_v / r_off) * std::exp(m_active_params.beta_sc * (std::sqrt(abs_v) - 1.0));
     }
     
     double raw_i = m_w * i_on + (1.0 - m_w) * i_off;
     
-    // Enforce current compliance limit
-    if (raw_i > m_params.I_compliance) raw_i = m_params.I_compliance;
-    if (raw_i < -m_params.I_compliance) raw_i = -m_params.I_compliance;
+    // RTN Simulation (Discrete Capture/Emission Transitions)
+    if (m_active_params.enable_rtn) {
+        std::uniform_real_distribution<double> dist(0.0, 1.0);
+        double r_val = dist(m_rng);
+        if (m_rtn_state == 0) {
+            double p_transition = 1.0 - std::exp(-dt / m_active_params.rtn_tau_c);
+            if (r_val < p_transition) m_rtn_state = 1;
+        } else {
+            double p_transition = 1.0 - std::exp(-dt / m_active_params.rtn_tau_e);
+            if (r_val < p_transition) m_rtn_state = 0;
+        }
+        
+        // RTN relative current fluctuation (e.g. state 1 shifts current up or down)
+        double rtn_factor = 1.0 + (m_rtn_state == 1 ? 0.5 : -0.5) * m_active_params.rtn_amplitude;
+        raw_i *= rtn_factor;
+    }
     
-    // Add realistic current noise
+    // Enforce current compliance limit
+    if (raw_i > m_active_params.I_compliance) raw_i = m_active_params.I_compliance;
+    if (raw_i < -m_active_params.I_compliance) raw_i = -m_active_params.I_compliance;
+    
+    // Add realistic read thermal current noise (5% SD)
     double noise = m_norm(m_rng) * (0.05 * raw_i);
     m_i = raw_i + noise;
     
     // Calculate instantaneous power dissipation
     m_power = std::fabs(m_i * voltage);
     
-    // Solve dynamic heat equation (RC low-pass network) for temperature rise m_dT
+    // Solve dynamic heat equation
     double tau_thermal = 0.01; 
-    double dT_target = m_power * m_params.theta_thermal;
+    double dT_target = m_power * m_active_params.theta_thermal;
     m_dT += (dt / (dt + tau_thermal)) * (dT_target - m_dT);
 }
 
@@ -106,10 +149,13 @@ double PhysicsEngine::power() const { return m_power; }
 double PhysicsEngine::dT() const { return m_dT; }
 std::pair<double,double> PhysicsEngine::iv_point(double v) const { return {v, m_i}; }
 MemristorParams& PhysicsEngine::params() { return m_params; }
-void PhysicsEngine::set_params(const MemristorParams& p) { m_params = p; }
+void PhysicsEngine::set_params(const MemristorParams& p) { 
+    m_params = p; 
+    apply_d2d_variability();
+}
 void PhysicsEngine::set_w(double w) {
     m_w = w < 0.0 ? 0.0 : (w > 1.0 ? 1.0 : w);
-    double r_on = m_params.R_on;
-    double r_off = m_params.R_off;
+    double r_on = m_active_params.R_on;
+    double r_off = m_active_params.R_off;
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
 }
