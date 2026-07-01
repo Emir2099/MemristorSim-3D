@@ -53,6 +53,14 @@ public:
     const std::vector<double>& inputs() const { return m_inputs; }
     const std::vector<double>& outputs() const { return m_outputs; }
     
+    std::vector<double> differential_outputs() const {
+        std::vector<double> diff(4, 0.0);
+        for (int k = 0; k < 4; ++k) {
+            diff[k] = m_outputs[2 * k] - m_outputs[2 * k + 1];
+        }
+        return diff;
+    }
+    
     double w(int row, int col) const {
         return m_devices[row][col].w();
     }

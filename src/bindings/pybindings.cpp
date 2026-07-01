@@ -73,6 +73,7 @@ PYBIND11_MODULE(memristorsim, m) {
         .def("set_inputs", &CrossbarArray::set_inputs)
         .def("inputs", &CrossbarArray::inputs)
         .def("outputs", &CrossbarArray::outputs)
+        .def("differential_outputs", &CrossbarArray::differential_outputs)
         .def("w", &CrossbarArray::w)
         .def("r", &CrossbarArray::r)
         .def("power", &CrossbarArray::power)

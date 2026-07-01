@@ -28,16 +28,16 @@ model = crossbar_pytorch.CrossbarLinear(
 optimizer = torch.optim.SGD([model.weight], lr=0.1)
 criterion = torch.nn.MSELoss()
 
-# Create dummy training data
-# Goal: Learn to reconstruct inputs (Identity transformation)
+# Create dummy training data with signed target outputs
+weight_target = torch.randn(8, 8) * 0.5
 x_train = torch.rand((16, 8)) # 16 samples of size 8
-y_target = x_train.clone() * 0.02 # Expected readout current is scaled (around 20 mA max)
+y_target = torch.matmul(x_train, weight_target) * 0.02
 
 print("\n--- Starting Hardware-Aware Training (HAT) Loop ---")
 for epoch in range(1, 21):
     optimizer.zero_grad()
     
-    # Forward pass runs through C++ crossbar physical simulation (with IR drop & quantization noise)
+    # Forward pass runs through C++ crossbar physical simulation (with G+/G- differential mapping)
     outputs = model(x_train)
     
     # Calculate loss
@@ -49,12 +49,12 @@ for epoch in range(1, 21):
     # Optimizer step updates weight parameter (conductance w)
     optimizer.step()
     
-    # Clip weights to physical conductance bounds [0.0, 1.0]
+    # Clip logical weights to physical boundaries [-1.0, 1.0]
     with torch.no_grad():
-        model.weight.clamp_(0.0, 1.0)
+        model.weight.clamp_(-1.0, 1.0)
         
     print(f"Epoch {epoch:2d}/20 -> Loss: {loss.item():.8f}")
 
 print("\nHAT loop completed successfully!")
-print("Trained weight matrix (conductance w, clamped to [0.0, 1.0]):")
+print("Trained signed weight matrix (clamped to [-1.0, 1.0]):")
 print(model.weight.detach().cpu().numpy())

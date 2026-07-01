@@ -74,17 +74,20 @@ class CrossbarFunction(torch.autograd.Function):
 class CrossbarLinear(torch.nn.Module):
     def __init__(self, enable_ir_drop=False, r_wire=1.5, enable_dac=False, dac_bits=8, enable_adc=False, adc_bits=8):
         super(CrossbarLinear, self).__init__()
-        # Trainable weights: initialized randomly as conductances [0.0, 1.0]
-        self.weight = torch.nn.Parameter(torch.rand(8, 8))
+        # Trainable weights: initialized in range [-1.0, 1.0] for signed weights representation
+        self.weight = torch.nn.Parameter(torch.rand(8, 8) * 2.0 - 1.0)
         
-        # Initialize C++ crossbar backend
-        self.crossbar = memristorsim.CrossbarArray()
-        self.crossbar.set_enable_ir_drop(enable_ir_drop)
-        self.crossbar.set_r_wire(r_wire)
-        self.crossbar.set_enable_dac(enable_dac)
-        self.crossbar.set_dac_bits(dac_bits)
-        self.crossbar.set_enable_adc(enable_adc)
-        self.crossbar.set_adc_bits(adc_bits)
+        # Positive and Negative crossbar arrays representing G+ and G- columns
+        self.crossbar_pos = memristorsim.CrossbarArray()
+        self.crossbar_neg = memristorsim.CrossbarArray()
+        
+        for cb in [self.crossbar_pos, self.crossbar_neg]:
+            cb.set_enable_ir_drop(enable_ir_drop)
+            cb.set_r_wire(r_wire)
+            cb.set_enable_dac(enable_dac)
+            cb.set_dac_bits(dac_bits)
+            cb.set_enable_adc(enable_adc)
+            cb.set_adc_bits(adc_bits)
         
     def forward(self, x):
         # Enforce batch layout checks
@@ -94,10 +97,16 @@ class CrossbarLinear(torch.nn.Module):
         orig_shape = x.shape
         x_flat = x.view(-1, 8)
         
-        # Run autograd function
-        y_flat = CrossbarFunction.apply(
-            x_flat, self.weight, self.crossbar
-        )
+        # Map logical weights to positive and negative conductances (G+ / G- differential pair)
+        weight_pos = torch.clamp(self.weight, min=0.0)
+        weight_neg = torch.clamp(-self.weight, min=0.0)
+        
+        # Run forward evaluations on both positive and negative physical arrays
+        out_pos = CrossbarFunction.apply(x_flat, weight_pos, self.crossbar_pos)
+        out_neg = CrossbarFunction.apply(x_flat, weight_neg, self.crossbar_neg)
+        
+        # Net output current is the differential: I_net = I+ - I-
+        y_flat = out_pos - out_neg
         
         # Reshape to original batch dimensions
         new_shape = list(orig_shape[:-1]) + [8]
