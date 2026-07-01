@@ -8,6 +8,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include "../render/Camera.h"
+#include "physics/Optimizer.h"
 
 Gui::Gui(GLFWwindow* window) : m_window(window) {
     IMGUI_CHECKVERSION();
@@ -368,10 +369,29 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
             }
         }
         
-        if (ImGui::CollapsingHeader("Physical Constants", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (ImGui::CollapsingHeader("Physical Constants & Conduction", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, 1.0f, 1000.0f, "%.1f");
             ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -5.0f, -0.1f, "%.2f V");
             ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.5f A");
+            
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "Conduction Model:");
+            
+            int model_idx = (int)params.conduction_model;
+            const char* models[] = { "Sinh-Nonlinear", "Poole-Frenkel Emission", "Schottky Tunneling" };
+            if (ImGui::Combo("Model Type", &model_idx, models, 3)) {
+                params.conduction_model = (ConductionModel)model_idx;
+            }
+            
+            if (params.conduction_model == ConductionModel::Sinh) {
+                ImGui::SliderFloat("Sinh Factor (gamma)", (float*)&params.gamma_sinh, 0.5f, 5.0f, "%.2f");
+            } else if (params.conduction_model == ConductionModel::PooleFrenkel) {
+                ImGui::SliderFloat("PF Factor (beta_pf)", (float*)&params.beta_pf, 0.1f, 5.0f, "%.2f");
+                ImGui::TextWrapped("Poole-Frenkel: ln(I/V) is proportional to sqrt(V). Mapped to R_off at 1V.");
+            } else if (params.conduction_model == ConductionModel::Schottky) {
+                ImGui::SliderFloat("Schottky Factor (beta_sc)", (float*)&params.beta_sc, 0.1f, 5.0f, "%.2f");
+                ImGui::TextWrapped("Schottky Tunneling: ln(I) is proportional to sqrt(V). Mapped to R_off at 1V.");
+            }
         }
         
         if (ImGui::CollapsingHeader("Real-Time Telemetry", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -423,6 +443,111 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
     
     physics.set_params(params);
     m_crossbar.set_params(params);
+    ImGui::End();
+
+    // -------------------------------------------------------------
+    // PARAMETER AUTO-FITTING WINDOW
+    // -------------------------------------------------------------
+    ImGui::Begin("Parameter Auto-Fitting");
+    
+    ImGui::TextWrapped("Import experimental measurement data to extract model parameters (R_on, R_off, k_on, k_off) using a Nelder-Mead simplex optimizer.");
+    ImGui::Separator();
+    
+    static char filepath_buf[256] = "experimental_data.csv";
+    ImGui::InputText("CSV Filepath", filepath_buf, sizeof(filepath_buf));
+    
+    ImGui::Spacing();
+    
+    if (ImGui::Button("Generate Synthetic Experimental Data", ImVec2(-1.0f, 24.0f))) {
+        MemristorParams true_p = params;
+        true_p.R_on = 80.0;
+        true_p.R_off = 12000.0;
+        true_p.k_on = 250.0;
+        true_p.k_off = -180.0;
+        
+        MemristorFitter::GenerateSyntheticCSV(filepath_buf, true_p);
+        ImGui::OpenPopup("DataGenSuccess");
+    }
+    
+    if (ImGui::BeginPopupModal("DataGenSuccess", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Synthetic data generated successfully!");
+        ImGui::Text("File saved to: %s", filepath_buf);
+        ImGui::Text("True values used: R_on=80.0, R_off=12000.0, k_on=250.0, k_off=-180.0");
+        ImGui::Separator();
+        if (ImGui::Button("OK", ImVec2(120.0f, 0.0f))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
+    }
+    
+    static std::string status_msg = "Idle";
+    static std::string err_msg = "";
+    static double fit_mse = 0.0;
+    static MemristorParams fitted_results;
+    static bool fit_completed = false;
+    
+    if (ImGui::Button("Run Nelder-Mead Optimization", ImVec2(-1.0f, 30.0f))) {
+        status_msg = "Running...";
+        err_msg = "";
+        std::string err;
+        auto dataset = MemristorFitter::LoadCSV(filepath_buf, err);
+        if (!err.empty()) {
+            err_msg = err;
+            status_msg = "Failed";
+        } else {
+            double mse = 0.0;
+            fitted_results = MemristorFitter::Fit(dataset, params, mse);
+            fit_mse = mse;
+            status_msg = "Completed Successfully";
+            fit_completed = true;
+            
+            // Auto-apply the fitted parameters
+            params = fitted_results;
+            physics.set_params(fitted_results);
+            m_crossbar.set_params(fitted_results);
+        }
+    }
+    
+    ImGui::Text("Status: "); ImGui::SameLine();
+    if (status_msg == "Running...") {
+        ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.0f, 1.0f), "%s", status_msg.c_str());
+    } else if (status_msg == "Completed Successfully") {
+        ImGui::TextColored(ImVec4(0.0f, 0.9f, 0.4f, 1.0f), "%s", status_msg.c_str());
+    } else if (status_msg == "Failed") {
+        ImGui::TextColored(ImVec4(1.0f, 0.1f, 0.1f, 1.0f), "%s", status_msg.c_str());
+    } else {
+        ImGui::Text("%s", status_msg.c_str());
+    }
+    
+    if (!err_msg.empty()) {
+        ImGui::TextColored(ImVec4(1.0f, 0.1f, 0.1f, 1.0f), "Error: %s", err_msg.c_str());
+    }
+    
+    if (fit_completed) {
+        ImGui::Separator();
+        ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "Fitted Parameters (Auto-Applied):");
+        
+        ImGui::Columns(2, "FitResultsTable", true);
+        ImGui::Separator();
+        ImGui::Text("Parameter"); ImGui::NextColumn();
+        ImGui::Text("Fitted Value"); ImGui::NextColumn();
+        ImGui::Separator();
+        
+        ImGui::Text("R_on"); ImGui::NextColumn();
+        ImGui::Text("%.2f Ohm", fitted_results.R_on); ImGui::NextColumn();
+        
+        ImGui::Text("R_off"); ImGui::NextColumn();
+        ImGui::Text("%.2f Ohm", fitted_results.R_off); ImGui::NextColumn();
+        
+        ImGui::Text("k_on"); ImGui::NextColumn();
+        ImGui::Text("%.2f", fitted_results.k_on); ImGui::NextColumn();
+        
+        ImGui::Text("k_off"); ImGui::NextColumn();
+        ImGui::Text("%.2f", fitted_results.k_off); ImGui::NextColumn();
+        
+        ImGui::Columns(1);
+        ImGui::Separator();
+        ImGui::Text("Final Optimization MSE: %.6e", fit_mse);
+    }
+    
     ImGui::End();
 }
 
