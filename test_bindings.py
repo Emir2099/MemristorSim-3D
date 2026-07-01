@@ -5,10 +5,14 @@ import os
 sys.path.append(os.path.abspath("./build"))
 sys.path.append(os.path.abspath("./build/Release"))
 
-# Resolve MinGW runtime DLL path on Windows for Python 3.8+
-mingw_bin = r"C:\Users\capta\Downloads\winlibs-x86_64-posix-seh-gcc-14.2.0-llvm-19.1.1-mingw-w64ucrt-12.0.0-r2\mingw64\bin"
-if os.path.exists(mingw_bin) and hasattr(os, 'add_dll_directory'):
-    os.add_dll_directory(mingw_bin)
+# Resolve local MinGW compiler paths on Windows if configured
+try:
+    import local_settings
+    if hasattr(local_settings, 'MINGW_BIN') and os.path.exists(local_settings.MINGW_BIN):
+        if hasattr(os, 'add_dll_directory'):
+            os.add_dll_directory(local_settings.MINGW_BIN)
+except ImportError:
+    pass
 
 try:
     import memristorsim
