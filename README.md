@@ -49,7 +49,7 @@ $$ I_{PF}(V_m) = c_1 \cdot V_m \cdot \exp\left(d_1 \sqrt{|V_m|} - e_1\right) $$
 
 * **Schottky Barrier Tunneling**:
 
-$$ I_{Schottky}(V_m) = c_2 \cdot \exp\left(d_2 \sqrt{|V_m|} - e_2\right) \cdot \operatorname{sgn}(V_m) $$
+$$ I_{Schottky}(V_m) = c_2 \cdot \exp\left(d_2 \sqrt{|V_m|} - e_2\right) \cdot \mathrm{sgn}(V_m) $$
 
 ### 2. Series Selector Solver (1S1R / 1T1R)
 
