@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 
+enum class ConductionModel { Sinh, PooleFrenkel, Schottky };
+
 struct MemristorParams {
     double v_off = 1.0;
     double v_on = -1.0;
@@ -17,6 +19,12 @@ struct MemristorParams {
     double theta_thermal = 0.01;
     double T_critical = 5.0;
     double I_compliance = 0.05;
+    
+    // Advanced Conduction Models
+    ConductionModel conduction_model = ConductionModel::Sinh;
+    double gamma_sinh = 2.0;
+    double beta_pf = 1.5;
+    double beta_sc = 2.0;
 };
 
 class PhysicsEngine {

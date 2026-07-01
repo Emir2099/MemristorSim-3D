@@ -61,12 +61,25 @@ void PhysicsEngine::update(double dt, double voltage) {
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
     
     // Calculate current using a highly realistic nonlinear conduction model
-    // Ohmic in ON state (w=1), sinh-nonlinear in OFF state (w=0)
-    double gamma = 2.0; // standard tunneling/Schottky nonlinearity factor
-    double sinh_v = std::sinh(gamma * voltage);
-    double sinh_1 = std::sinh(gamma);
+    // Ohmic in ON state (w=1), and selectable nonlinear in OFF state (w=0)
     double i_on = voltage / r_on;
-    double i_off = sinh_v / (r_off * sinh_1);
+    double i_off = 0.0;
+    double abs_v = std::fabs(voltage);
+    double sgn_v = (voltage > 0.0) ? 1.0 : ((voltage < 0.0) ? -1.0 : 0.0);
+    
+    if (m_params.conduction_model == ConductionModel::Sinh) {
+        double gamma = m_params.gamma_sinh;
+        double sinh_v = std::sinh(gamma * voltage);
+        double sinh_1 = std::sinh(gamma);
+        i_off = sinh_v / (r_off * sinh_1);
+    } else if (m_params.conduction_model == ConductionModel::PooleFrenkel) {
+        // Poole-Frenkel Emission: ln(I/V) is proportional to sqrt(V)
+        i_off = (voltage / r_off) * std::exp(m_params.beta_pf * (std::sqrt(abs_v) - 1.0));
+    } else if (m_params.conduction_model == ConductionModel::Schottky) {
+        // Schottky Tunneling / Emission: ln(I) is proportional to sqrt(V)
+        i_off = (sgn_v / r_off) * std::exp(m_params.beta_sc * (std::sqrt(abs_v) - 1.0));
+    }
+    
     double raw_i = m_w * i_on + (1.0 - m_w) * i_off;
     
     // Enforce current compliance limit
