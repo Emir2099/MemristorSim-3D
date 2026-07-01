@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <algorithm>
+#include <cmath>
 #include "Memristor.h"
 
 class CrossbarArray {
@@ -19,6 +21,9 @@ public:
         m_outputs.resize(8, 0.0);
         m_ideal_outputs.resize(8, 0.0);
         
+        m_v_row_nodes.resize(8, std::vector<double>(8, 0.0));
+        m_v_col_nodes.resize(8, std::vector<double>(8, 0.0));
+        
         m_edge_detected_output.resize(8, std::vector<double>(8, 0.0));
         m_edge_detected_input.resize(8, std::vector<double>(8, 0.0));
         m_kernel_weights.resize(3, std::vector<double>(3, 0.0));
@@ -33,6 +38,8 @@ public:
             m_ideal_outputs[i] = 0.0;
             for (int j = 0; j < 8; ++j) {
                 m_devices[i][j].reset();
+                m_v_row_nodes[i][j] = 0.0;
+                m_v_col_nodes[i][j] = 0.0;
             }
         }
     }
@@ -73,23 +80,43 @@ public:
             }
         }
     }
+
+    // IR Drop parameters and getters/setters
+    bool enable_ir_drop() const { return m_enable_ir_drop; }
+    void set_enable_ir_drop(bool val) { m_enable_ir_drop = val; }
+    
+    double r_wire() const { return m_r_wire; }
+    void set_r_wire(double r) { m_r_wire = r; }
+    
+    double v_row_node(int row, int col) const { return m_v_row_nodes[row][col]; }
+    double v_col_node(int row, int col) const { return m_v_col_nodes[row][col]; }
     
     void update(double dt) {
-        // Step all devices based on row (wordline) inputs
+        // Solve row and column node voltages first (iterative MNA relaxation)
+        solve_nodal_voltages();
+
+        // Step all physical devices based on the actual voltage drop across them
         for (int i = 0; i < 8; ++i) {
-            double v_row = m_inputs[i];
             for (int j = 0; j < 8; ++j) {
-                m_devices[i][j].update(dt, v_row);
+                double v_diff = m_v_row_nodes[i][j] - m_v_col_nodes[i][j];
+                m_devices[i][j].update(dt, v_diff);
             }
         }
         
-        // Perform real-time Vector-Matrix Multiplication (VMM)
+        // Compute read-out currents at the virtual ground ammeter terminals
         for (int j = 0; j < 8; ++j) {
-            double sum_current = 0.0;
-            for (int i = 0; i < 8; ++i) {
-                sum_current += m_devices[i][j].i();
+            if (m_enable_ir_drop) {
+                // Current exiting the column j wire segment at index 7 into ground (0.0 V):
+                // I_out = V_col[7][j] / r_wire
+                m_outputs[j] = m_v_col_nodes[7][j] / m_r_wire;
+            } else {
+                // Ideal case (0-ohm lines): simply sum the nominal currents of column devices
+                double sum_current = 0.0;
+                for (int i = 0; i < 8; ++i) {
+                    sum_current += m_devices[i][j].i();
+                }
+                m_outputs[j] = sum_current;
             }
-            m_outputs[j] = sum_current;
         }
     }
     
@@ -98,11 +125,97 @@ public:
     }
     
 private:
+    void solve_nodal_voltages() {
+        if (!m_enable_ir_drop) {
+            // Ideal crossbar: all row nodes equal input, column nodes are virtual ground
+            for (int i = 0; i < 8; ++i) {
+                for (int j = 0; j < 8; ++j) {
+                    m_v_row_nodes[i][j] = m_inputs[i];
+                    m_v_col_nodes[i][j] = 0.0;
+                }
+            }
+            return;
+        }
+
+        // Iterative Modified Nodal Analysis (MNA) using Gauss-Seidel relaxation
+        // Diagonally dominant grid solves extremely quickly in a few relaxation sweeps
+        int max_iters = 100;
+        double tolerance = 1e-6;
+        double rx = m_r_wire;
+        double ry = m_r_wire;
+
+        for (int iter = 0; iter < max_iters; ++iter) {
+            double max_diff = 0.0;
+
+            // Solve KCL at Row nodes: V_row[i][j]
+            for (int i = 0; i < 8; ++i) {
+                double v_in = m_inputs[i];
+                for (int j = 0; j < 8; ++j) {
+                    double old_val = m_v_row_nodes[i][j];
+                    double v_left = (j == 0) ? v_in : m_v_row_nodes[i][j - 1];
+                    
+                    double v_new = 0.0;
+                    double v_diff = old_val - m_v_col_nodes[i][j];
+                    double i_mem = m_devices[i][j].calculate_current(v_diff);
+
+                    if (j == 7) {
+                        // Terminal node: no right-hand segment
+                        v_new = v_left - rx * i_mem;
+                    } else {
+                        double v_right = m_v_row_nodes[i][j + 1];
+                        v_new = (v_left + v_right - rx * i_mem) / 2.0;
+                    }
+
+                    m_v_row_nodes[i][j] = v_new;
+                    max_diff = std::max(max_diff, std::abs(v_new - old_val));
+                }
+            }
+
+            // Solve KCL at Column nodes: V_col[i][j]
+            for (int j = 0; j < 8; ++j) {
+                for (int i = 0; i < 8; ++i) {
+                    double old_val = m_v_col_nodes[i][j];
+                    double v_new = 0.0;
+                    
+                    double v_diff = m_v_row_nodes[i][j] - old_val;
+                    double i_mem = m_devices[i][j].calculate_current(v_diff);
+
+                    if (i == 0) {
+                        // Topmost node: no wire segment above
+                        double v_down = m_v_col_nodes[1][j];
+                        v_new = v_down + ry * i_mem;
+                    } else if (i == 7) {
+                        // Bottommost node connected to virtual ground
+                        double v_up = m_v_col_nodes[6][j];
+                        v_new = (v_up + ry * i_mem) / 2.0;
+                    } else {
+                        double v_up = m_v_col_nodes[i - 1][j];
+                        double v_down = m_v_col_nodes[i + 1][j];
+                        v_new = (v_up + v_down + ry * i_mem) / 2.0;
+                    }
+
+                    m_v_col_nodes[i][j] = v_new;
+                    max_diff = std::max(max_diff, std::abs(v_new - old_val));
+                }
+            }
+
+            if (max_diff < tolerance) {
+                break;
+            }
+        }
+    }
+
     std::vector<std::vector<PhysicsEngine>> m_devices;
     std::vector<double> m_inputs;
     std::vector<double> m_outputs;
     std::vector<double> m_ideal_outputs;
     
+    // Nodal voltages for IR drop calculation
+    std::vector<std::vector<double>> m_v_row_nodes;
+    std::vector<std::vector<double>> m_v_col_nodes;
+    bool m_enable_ir_drop = false;
+    double m_r_wire = 1.5; // Wire segment resistance in Ohms
+
 public:
     std::vector<std::vector<double>> m_edge_detected_output;
     std::vector<std::vector<double>> m_edge_detected_input;

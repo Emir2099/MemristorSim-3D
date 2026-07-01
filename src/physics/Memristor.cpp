@@ -86,29 +86,7 @@ void PhysicsEngine::update(double dt, double voltage) {
     double r_off = m_active_params.R_off;
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
     
-    // Calculate current using a highly realistic nonlinear conduction model
-    // Ohmic in ON state (w=1), and selectable nonlinear in OFF state (w=0)
-    double i_on = voltage / r_on;
-    double i_off = 0.0;
-    double abs_v = std::fabs(voltage);
-    double sgn_v = (voltage > 0.0) ? 1.0 : ((voltage < 0.0) ? -1.0 : 0.0);
-    
-    if (m_active_params.conduction_model == ConductionModel::Sinh) {
-        double gamma = m_active_params.gamma_sinh;
-        double sinh_v = std::sinh(gamma * voltage);
-        double sinh_1 = std::sinh(gamma);
-        i_off = sinh_v / (r_off * sinh_1);
-    } else if (m_active_params.conduction_model == ConductionModel::PooleFrenkel) {
-        // Poole-Frenkel Emission: ln(I/V) is proportional to sqrt(V)
-        i_off = (voltage / r_off) * std::exp(m_active_params.beta_pf * (std::sqrt(abs_v) - 1.0));
-    } else if (m_active_params.conduction_model == ConductionModel::Schottky) {
-        // Schottky Tunneling / Emission: ln(I) is proportional to sqrt(V)
-        i_off = (sgn_v / r_off) * std::exp(m_active_params.beta_sc * (std::sqrt(abs_v) - 1.0));
-    }
-    
-    double raw_i = m_w * i_on + (1.0 - m_w) * i_off;
-    
-    // RTN Simulation (Discrete Capture/Emission Transitions)
+    // RTN state update first
     if (m_active_params.enable_rtn) {
         std::uniform_real_distribution<double> dist(0.0, 1.0);
         double r_val = dist(m_rng);
@@ -119,15 +97,10 @@ void PhysicsEngine::update(double dt, double voltage) {
             double p_transition = 1.0 - std::exp(-dt / m_active_params.rtn_tau_e);
             if (r_val < p_transition) m_rtn_state = 0;
         }
-        
-        // RTN relative current fluctuation (e.g. state 1 shifts current up or down)
-        double rtn_factor = 1.0 + (m_rtn_state == 1 ? 0.5 : -0.5) * m_active_params.rtn_amplitude;
-        raw_i *= rtn_factor;
     }
     
-    // Enforce current compliance limit
-    if (raw_i > m_active_params.I_compliance) raw_i = m_active_params.I_compliance;
-    if (raw_i < -m_active_params.I_compliance) raw_i = -m_active_params.I_compliance;
+    // Calculate raw current using the modular method
+    double raw_i = calculate_current(voltage);
     
     // Add realistic read thermal current noise (5% SD)
     double noise = m_norm(m_rng) * (0.05 * raw_i);
@@ -158,4 +131,43 @@ void PhysicsEngine::set_w(double w) {
     double r_on = m_active_params.R_on;
     double r_off = m_active_params.R_off;
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
+}
+
+double PhysicsEngine::calculate_current(double voltage_diff) const {
+    double r_on = m_active_params.R_on;
+    double r_off = m_active_params.R_off;
+    
+    // Calculate current using a highly realistic nonlinear conduction model
+    // Ohmic in ON state (w=1), and selectable nonlinear in OFF state (w=0)
+    double i_on = voltage_diff / r_on;
+    double i_off = 0.0;
+    double abs_v = std::fabs(voltage_diff);
+    double sgn_v = (voltage_diff > 0.0) ? 1.0 : ((voltage_diff < 0.0) ? -1.0 : 0.0);
+    
+    if (m_active_params.conduction_model == ConductionModel::Sinh) {
+        double gamma = m_active_params.gamma_sinh;
+        double sinh_v = std::sinh(gamma * voltage_diff);
+        double sinh_1 = std::sinh(gamma);
+        i_off = sinh_v / (r_off * sinh_1);
+    } else if (m_active_params.conduction_model == ConductionModel::PooleFrenkel) {
+        // Poole-Frenkel Emission: ln(I/V) is proportional to sqrt(V)
+        i_off = (voltage_diff / r_off) * std::exp(m_active_params.beta_pf * (std::sqrt(abs_v) - 1.0));
+    } else if (m_active_params.conduction_model == ConductionModel::Schottky) {
+        // Schottky Tunneling / Emission: ln(I) is proportional to sqrt(V)
+        i_off = (sgn_v / r_off) * std::exp(m_active_params.beta_sc * (std::sqrt(abs_v) - 1.0));
+    }
+    
+    double raw_i = m_w * i_on + (1.0 - m_w) * i_off;
+    
+    // RTN Simulation relative current fluctuation
+    if (m_active_params.enable_rtn) {
+        double rtn_factor = 1.0 + (m_rtn_state == 1 ? 0.5 : -0.5) * m_active_params.rtn_amplitude;
+        raw_i *= rtn_factor;
+    }
+    
+    // Enforce current compliance limit
+    if (raw_i > m_active_params.I_compliance) raw_i = m_active_params.I_compliance;
+    if (raw_i < -m_active_params.I_compliance) raw_i = -m_active_params.I_compliance;
+    
+    return raw_i;
 }

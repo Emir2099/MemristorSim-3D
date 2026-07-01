@@ -52,6 +52,7 @@ public:
     MemristorParams& params();
     void set_params(const MemristorParams& p);
     void set_w(double w);
+    double calculate_current(double voltage_diff) const;
 private:
     MemristorParams m_params;
     MemristorParams m_active_params;

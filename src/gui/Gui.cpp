@@ -151,6 +151,15 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
                         ImGui::Text("Synapse (%d, %d)", r, c);
                         ImGui::Text("State (w): %.3f", w_val);
                         ImGui::Text("Resistance: %.1f Ohms", m_crossbar.r(r, c));
+                        if (m_crossbar.enable_ir_drop()) {
+                            double vr = m_crossbar.v_row_node(r, c);
+                            double vc = m_crossbar.v_col_node(r, c);
+                            ImGui::Text("Row Wire V_row: %.3f V", vr);
+                            ImGui::Text("Col Wire V_col: %.3f V", vc);
+                            ImGui::Text("Net Drop V_drop: %.3f V (ideal: %.3f V)", vr - vc, m_crossbar.inputs()[r]);
+                        } else {
+                            ImGui::Text("Voltage Drop: %.2f V", m_crossbar.inputs()[r]);
+                        }
                         ImGui::Text("Power: %.6f W", m_crossbar.power(r, c));
                         ImGui::Text("Temp Rise: %.1f K", m_crossbar.dT(r, c));
                         ImGui::EndTooltip();
@@ -190,6 +199,20 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
                 for (int r = 0; r < 8; ++r) {
                     for (int c = 0; c < 8; ++c) m_crossbar.program_cell(r, c, dist(rng));
                 }
+            }
+        }
+        
+        if (ImGui::CollapsingHeader("Crossbar Parasitics & IR-Drop", ImGuiTreeNodeFlags_DefaultOpen)) {
+            bool ir_val = m_crossbar.enable_ir_drop();
+            if (ImGui::Checkbox("Enable IR-Drop Solver (Nodal MNA)", &ir_val)) {
+                m_crossbar.set_enable_ir_drop(ir_val);
+            }
+            if (ir_val) {
+                float r_w = (float)m_crossbar.r_wire();
+                if (ImGui::SliderFloat("Wire Resistance (r_wire)", &r_w, 0.1f, 10.0f, "%.2f Ohm")) {
+                    m_crossbar.set_r_wire(r_w);
+                }
+                ImGui::TextWrapped("Iterative Nodal Analysis computes row/column voltage drops along the metal lines.");
             }
         }
         
