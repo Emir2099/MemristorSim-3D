@@ -183,6 +183,10 @@ public:
         m_devices[row][col].set_w(w_val);
     }
     
+    std::pair<int, double> program_cell_write_verify(int row, int col, double w_val, double tolerance = 0.01, int max_pulses = 30) {
+        return m_devices[row][col].program_write_verify(w_val, tolerance, max_pulses);
+    }
+    
 private:
     void solve_nodal_voltages_with_inputs(const std::vector<double>& inputs) {
         if (!m_enable_ir_drop) {

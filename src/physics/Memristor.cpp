@@ -36,6 +36,7 @@ void PhysicsEngine::apply_d2d_variability() {
 
 double PhysicsEngine::get_dw_dt(double v, double w, double dT) const {
     double dw = 0.0;
+    w = w < 0.0 ? 0.0 : (w > 1.0 ? 1.0 : w);
     if (v > m_active_params.v_off) {
         // RESET process: trying to turn OFF (w -> 0.0)
         // k_off is negative, so this term will be negative
@@ -242,4 +243,42 @@ double PhysicsEngine::calculate_current(double voltage_diff) const {
     }
     double v_mem = (low + high) * 0.5;
     return calculate_memristor_current(v_mem);
+}
+
+std::pair<int, double> PhysicsEngine::program_write_verify(double w_target, double tolerance, int max_pulses) {
+    int pulses = 0;
+    double energy = 0.0;
+    double dt = 0.001; // 1 ms pulse width
+    
+    w_target = w_target < 0.0 ? 0.0 : (w_target > 1.0 ? 1.0 : w_target);
+    
+    for (int p = 0; p < max_pulses; ++p) {
+        double current_w = m_w;
+        double diff = w_target - current_w;
+        if (std::abs(diff) <= tolerance) {
+            break;
+        }
+        
+        double v_pulse = 0.0;
+        if (diff > 0.0) {
+            // Needs SET: Apply negative voltage pulse (v_on is negative)
+            double factor = std::pow(diff / tolerance, 0.25);
+            // Cap maximum write voltage to prevent unstable numerical/state overshoot
+            v_pulse = std::max(m_active_params.v_on - 1.2, m_active_params.v_on - 0.4 * factor);
+        } else {
+            // Needs RESET: Apply positive voltage pulse (v_off is positive)
+            double factor = std::pow((-diff) / tolerance, 0.25);
+            // Cap maximum write voltage to prevent unstable numerical/state overshoot
+            v_pulse = std::min(m_active_params.v_off + 1.2, m_active_params.v_off + 0.4 * factor);
+        }
+        
+        // Apply the physical write pulse
+        update(dt, v_pulse);
+        
+        // Accumulate energy: E = |I * V| * dt
+        energy += std::abs(m_i * v_pulse) * dt;
+        pulses++;
+    }
+    
+    return {pulses, energy};
 }

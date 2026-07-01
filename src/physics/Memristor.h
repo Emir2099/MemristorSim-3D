@@ -63,6 +63,7 @@ public:
     double calculate_current(double voltage_diff) const;
     double calculate_memristor_current(double voltage_diff) const;
     double calculate_selector_current(double v_sel) const;
+    std::pair<int, double> program_write_verify(double w_target, double tolerance = 0.01, int max_pulses = 30);
 private:
     MemristorParams m_params;
     MemristorParams m_active_params;

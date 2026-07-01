@@ -64,7 +64,9 @@ PYBIND11_MODULE(memristorsim, m) {
         .def("calculate_selector_current", &PhysicsEngine::calculate_selector_current)
         .def("params", &PhysicsEngine::params, py::return_value_policy::reference_internal)
         .def("set_params", &PhysicsEngine::set_params)
-        .def("set_w", &PhysicsEngine::set_w);
+        .def("set_w", &PhysicsEngine::set_w)
+        .def("program_write_verify", &PhysicsEngine::program_write_verify,
+             py::arg("w_target"), py::arg("tolerance") = 0.01, py::arg("max_pulses") = 30);
 
     // Bind CrossbarArray
     py::class_<CrossbarArray>(m, "CrossbarArray")
@@ -95,5 +97,7 @@ PYBIND11_MODULE(memristorsim, m) {
         .def("adc_bits", &CrossbarArray::adc_bits)
         .def("set_adc_bits", &CrossbarArray::set_adc_bits)
         .def("update", &CrossbarArray::update)
-        .def("program_cell", &CrossbarArray::program_cell);
+        .def("program_cell", &CrossbarArray::program_cell)
+        .def("program_cell_write_verify", &CrossbarArray::program_cell_write_verify,
+             py::arg("row"), py::arg("col"), py::arg("w_val"), py::arg("tolerance") = 0.01, py::arg("max_pulses") = 30);
 }
