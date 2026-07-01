@@ -415,6 +415,19 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
                 ImGui::SliderFloat("Schottky Factor (beta_sc)", (float*)&params.beta_sc, 0.1f, 5.0f, "%.2f");
                 ImGui::TextWrapped("Schottky Tunneling: ln(I) is proportional to sqrt(V). Mapped to R_off at 1V.");
             }
+            
+            ImGui::Separator();
+            ImGui::Checkbox("Enable Series Selector (1S1R / 1T1R)", &params.enable_selector);
+            if (params.enable_selector) {
+                const char* selector_types[] = { "Volatile TS (1S1R)", "Transistor Gate (1T1R)" };
+                ImGui::Combo("Selector Type", &params.selector_type, selector_types, 2);
+                if (params.selector_type == 0) {
+                    ImGui::SliderFloat("Selector V_th", (float*)&params.selector_v_th, 0.1f, 1.5f, "%.2f V");
+                } else {
+                    ImGui::SliderFloat("Transistor V_gate", (float*)&params.selector_v_gate, 0.5f, 3.3f, "%.2f V");
+                    ImGui::SliderFloat("Transistor V_th", (float*)&params.selector_v_th_trans, 0.1f, 1.0f, "%.2f V");
+                }
+            }
         }
         
         if (ImGui::CollapsingHeader("Stochasticity & Telegraph Noise (RTN)", ImGuiTreeNodeFlags_DefaultOpen)) {

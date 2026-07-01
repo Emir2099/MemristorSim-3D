@@ -71,8 +71,26 @@ double PhysicsEngine::rk4(double dt, double v, double w0, double dT) const {
 void PhysicsEngine::update(double dt, double voltage) {
     if (dt <= 0.0) return;
     
-    // Integrate state variable w using RK4
-    double w_new = rk4(dt, voltage, m_w, m_dT);
+    // Solve for the voltage across the memristor component (1S1R / 1T1R series drop)
+    double v_mem = voltage;
+    if (m_active_params.enable_selector) {
+        double low = (voltage > 0.0) ? 0.0 : voltage;
+        double high = (voltage > 0.0) ? voltage : 0.0;
+        for (int iter = 0; iter < 12; ++iter) {
+            double mid = (low + high) * 0.5;
+            double i_mem = calculate_memristor_current(mid);
+            double i_sel = calculate_selector_current(voltage - mid);
+            if (i_mem > i_sel) {
+                if (voltage > 0.0) high = mid; else low = mid;
+            } else {
+                if (voltage > 0.0) low = mid; else high = mid;
+            }
+        }
+        v_mem = (low + high) * 0.5;
+    }
+    
+    // Integrate state variable w using RK4 based on the actual voltage across the memristor
+    double w_new = rk4(dt, v_mem, m_w, m_dT);
     
     // Apply C2C write noise (stochastic SDE term: sigma * sqrt(dt) * N(0, 1))
     if (m_active_params.enable_variability) {
@@ -133,7 +151,7 @@ void PhysicsEngine::set_w(double w) {
     m_r = r_on + (r_off - r_on) * (1.0 - m_w);
 }
 
-double PhysicsEngine::calculate_current(double voltage_diff) const {
+double PhysicsEngine::calculate_memristor_current(double voltage_diff) const {
     double r_on = m_active_params.R_on;
     double r_off = m_active_params.R_off;
     
@@ -170,4 +188,58 @@ double PhysicsEngine::calculate_current(double voltage_diff) const {
     if (raw_i < -m_active_params.I_compliance) raw_i = -m_active_params.I_compliance;
     
     return raw_i;
+}
+
+double PhysicsEngine::calculate_selector_current(double v_sel) const {
+    double abs_v = std::fabs(v_sel);
+    double sgn_v = (v_sel > 0.0) ? 1.0 : ((v_sel < 0.0) ? -1.0 : 0.0);
+    
+    if (m_active_params.selector_type == 0) {
+        // 1S1R Volatile Threshold Switch Model
+        // G_off is 1e-9 S (1 GOhm) to eliminate leakage, G_on is 1e-3 S (1 kOhm)
+        double g_off = 1e-9;
+        double g_on = 1e-3;
+        double v_th = m_active_params.selector_v_th;
+        
+        // Smooth transition representing volatile threshold switching
+        double conduct = g_off + (g_on - g_off) / (1.0 + std::exp(- (abs_v - v_th) / 0.05));
+        return v_sel * conduct;
+    } else {
+        // 1T1R Transistor Selector Model (Square-law MOSFET model)
+        double v_gate = m_active_params.selector_v_gate;
+        double v_th_trans = m_active_params.selector_v_th_trans;
+        double beta = 2.0e-3; // Transconductance beta (A/V^2)
+        
+        double v_overdrive = v_gate - v_th_trans;
+        if (v_overdrive <= 0.0) return 0.0;
+        
+        if (abs_v < v_overdrive) {
+            // Linear region
+            return sgn_v * beta * (v_overdrive * abs_v - 0.5 * abs_v * abs_v);
+        } else {
+            // Saturation region
+            return sgn_v * 0.5 * beta * v_overdrive * v_overdrive;
+        }
+    }
+}
+
+double PhysicsEngine::calculate_current(double voltage_diff) const {
+    if (!m_active_params.enable_selector) {
+        return calculate_memristor_current(voltage_diff);
+    }
+    
+    double low = (voltage_diff > 0.0) ? 0.0 : voltage_diff;
+    double high = (voltage_diff > 0.0) ? voltage_diff : 0.0;
+    for (int iter = 0; iter < 12; ++iter) {
+        double mid = (low + high) * 0.5;
+        double i_mem = calculate_memristor_current(mid);
+        double i_sel = calculate_selector_current(voltage_diff - mid);
+        if (i_mem > i_sel) {
+            if (voltage_diff > 0.0) high = mid; else low = mid;
+        } else {
+            if (voltage_diff > 0.0) low = mid; else high = mid;
+        }
+    }
+    double v_mem = (low + high) * 0.5;
+    return calculate_memristor_current(v_mem);
 }

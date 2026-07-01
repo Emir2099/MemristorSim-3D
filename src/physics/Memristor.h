@@ -36,6 +36,14 @@ struct MemristorParams {
     double rtn_amplitude = 0.03;     // RTN relative current fluctuation (e.g., 3%)
     double rtn_tau_c = 0.05;         // Mean capture time (s)
     double rtn_tau_e = 0.05;         // Mean emission time (s)
+    
+    // Selector Device Parameters (1S1R / 1T1R)
+    bool enable_selector = false;
+    int selector_type = 0;           // 0 = 1S1R (Threshold Switch), 1 = 1T1R (Transistor)
+    double selector_v_th = 0.6;      // Selector Threshold Voltage (V)
+    double selector_alpha = 10.0;    // Selector slope/nonlinearity
+    double selector_v_gate = 1.8;    // 1T1R Gate Voltage (V)
+    double selector_v_th_trans = 0.4; // 1T1R Transistor threshold voltage (V)
 };
 
 class PhysicsEngine {
@@ -53,6 +61,8 @@ public:
     void set_params(const MemristorParams& p);
     void set_w(double w);
     double calculate_current(double voltage_diff) const;
+    double calculate_memristor_current(double voltage_diff) const;
+    double calculate_selector_current(double v_sel) const;
 private:
     MemristorParams m_params;
     MemristorParams m_active_params;
