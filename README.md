@@ -36,24 +36,39 @@ This framework provides a desktop GUI application (OpenGL/Dear ImGui) for real-t
 ## 📊 Mathematical Formulations
 
 ### 1. Conduction & Transport Models
+
 The cell current is evaluated dynamically based on the selected conduction model:
+
 * **Sinh Conduction**:
-  $$ I(V_m) = w \cdot a_1 \sinh(b_1 V_m) + (1-w) \cdot a_2 \sinh(b_2 V_m) $$
-* **Poole-Frenkel Emission** (thin-film trap-assisted conduction):
-  $$ I_{PF}(V_m) = c_1 \cdot V_m \cdot \exp\left(d_1 \sqrt{|V_m|} - e_1\right) $$
-* **Schottky Barrier Tunneling** (electric-field-assisted junction tunneling):
-  $$ I_{Schottky}(V_m) = c_2 \cdot \exp\left(d_2 \sqrt{|V_m|} - e_2\right) \cdot \operatorname{sgn}(V_m) $$
+
+$$ I(V_m) = w \cdot a_1 \sinh(b_1 V_m) + (1-w) \cdot a_2 \sinh(b_2 V_m) $$
+
+* **Poole-Frenkel Emission**:
+
+$$ I_{PF}(V_m) = c_1 \cdot V_m \cdot \exp\left(d_1 \sqrt{|V_m|} - e_1\right) $$
+
+* **Schottky Barrier Tunneling**:
+
+$$ I_{Schottky}(V_m) = c_2 \cdot \exp\left(d_2 \sqrt{|V_m|} - e_2\right) \cdot \operatorname{sgn}(V_m) $$
 
 ### 2. Series Selector Solver (1S1R / 1T1R)
+
 For a cell under total voltage bias $V_{total}$, the loop solves for the intermediate voltage $V_m$ across the memristor where:
+
 $$ V_{total} = V_s + V_m \quad \text{and} \quad I_{cell} = I_{sel}(V_s) = I_{mem}(V_m) $$
+
 We use a fast numerical binary bisection search to resolve $V_m$ at each time step.
+
 * **1S1R (Volatile Threshold Switch)**:
-  $$ I_{sel}(V_s) = V_s \cdot \left(G_{off} + \frac{G_{on} - G_{off}}{1 + \exp\left(-(|V_s| - V_{th})/0.05\right)}\right) $$
+
+$$ I_{sel}(V_s) = V_s \cdot \left(G_{off} + \frac{G_{on} - G_{off}}{1 + \exp\left(-(|V_s| - V_{th})/0.05\right)}\right) $$
 
 ### 3. Modified Nodal Analysis (MNA)
+
 At each junction $(i,j)$ in the $8\times8$ crossbar, KCL row node voltage $V^r_{i,j}$ and column node voltage $V^c_{i,j}$ are updated iteratively using Gauss-Seidel relaxation to solve the wire resistance drops:
+
 $$ V^r_{i,j} = \frac{V^r_{i,j-1} + V^r_{i,j+1} - r_{wire} \cdot I_{cell,i,j}}{2} $$
+
 $$ V^c_{i,j} = \frac{V^c_{i-1,j} + V^c_{i+1,j} + r_{wire} \cdot I_{cell,i,j}}{2} $$
 
 ---
