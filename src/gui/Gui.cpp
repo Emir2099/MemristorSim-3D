@@ -214,6 +214,32 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
                 }
                 ImGui::TextWrapped("Iterative Nodal Analysis computes row/column voltage drops along the metal lines.");
             }
+            
+            ImGui::Separator();
+            ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "DAC/ADC Conversion (Quantization Noise):");
+            
+            bool dac_val = m_crossbar.enable_dac();
+            if (ImGui::Checkbox("Enable Input DAC", &dac_val)) {
+                m_crossbar.set_enable_dac(dac_val);
+            }
+            if (dac_val) {
+                int dac_b = m_crossbar.dac_bits();
+                if (ImGui::SliderInt("DAC Resolution (bits)", &dac_b, 1, 8)) {
+                    m_crossbar.set_dac_bits(dac_b);
+                }
+            }
+            
+            ImGui::Spacing();
+            bool adc_val = m_crossbar.enable_adc();
+            if (ImGui::Checkbox("Enable Output ADC", &adc_val)) {
+                m_crossbar.set_enable_adc(adc_val);
+            }
+            if (adc_val) {
+                int adc_b = m_crossbar.adc_bits();
+                if (ImGui::SliderInt("ADC Resolution (bits)", &adc_b, 1, 8)) {
+                    m_crossbar.set_adc_bits(adc_b);
+                }
+            }
         }
         
         if (ImGui::CollapsingHeader("Analog Vector-Matrix Multiplication (CIM)", ImGuiTreeNodeFlags_DefaultOpen)) {

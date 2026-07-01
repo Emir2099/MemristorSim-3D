@@ -90,10 +90,57 @@ public:
     
     double v_row_node(int row, int col) const { return m_v_row_nodes[row][col]; }
     double v_col_node(int row, int col) const { return m_v_col_nodes[row][col]; }
+
+    // DAC/ADC getters & setters
+    bool enable_dac() const { return m_enable_dac; }
+    void set_enable_dac(bool val) { m_enable_dac = val; }
+    int dac_bits() const { return m_dac_bits; }
+    void set_dac_bits(int bits) { m_dac_bits = bits; }
+    double dac_v_min() const { return m_dac_v_min; }
+    void set_dac_v_min(double v) { m_dac_v_min = v; }
+    double dac_v_max() const { return m_dac_v_max; }
+    void set_dac_v_max(double v) { m_dac_v_max = v; }
+
+    bool enable_adc() const { return m_enable_adc; }
+    void set_enable_adc(bool val) { m_enable_adc = val; }
+    int adc_bits() const { return m_adc_bits; }
+    void set_adc_bits(int bits) { m_adc_bits = bits; }
+    double adc_i_min() const { return m_adc_i_min; }
+    void set_adc_i_min(double i) { m_adc_i_min = i; }
+    double adc_i_max() const { return m_adc_i_max; }
+    void set_adc_i_max(double i) { m_adc_i_max = i; }
+
+    double quantize_dac(double v) const {
+        if (!m_enable_dac || m_dac_bits <= 0) return v;
+        double v_min = m_dac_v_min;
+        double v_max = m_dac_v_max;
+        double clamped = std::max(v_min, std::min(v, v_max));
+        double levels = std::pow(2.0, m_dac_bits) - 1.0;
+        double step = (v_max - v_min) / levels;
+        if (step <= 0.0) return clamped;
+        return v_min + std::round((clamped - v_min) / step) * step;
+    }
+
+    double quantize_adc(double i) const {
+        if (!m_enable_adc || m_adc_bits <= 0) return i;
+        double i_min = m_adc_i_min;
+        double i_max = m_adc_i_max;
+        double clamped = std::max(i_min, std::min(i, i_max));
+        double levels = std::pow(2.0, m_adc_bits) - 1.0;
+        double step = (i_max - i_min) / levels;
+        if (step <= 0.0) return clamped;
+        return i_min + std::round((clamped - i_min) / step) * step;
+    }
     
     void update(double dt) {
-        // Solve row and column node voltages first (iterative MNA relaxation)
-        solve_nodal_voltages();
+        // Quantize input voltages using DAC
+        std::vector<double> active_inputs = m_inputs;
+        for (int i = 0; i < 8; ++i) {
+            active_inputs[i] = quantize_dac(m_inputs[i]);
+        }
+
+        // Solve row and column node voltages first based on the active DAC-quantized inputs
+        solve_nodal_voltages_with_inputs(active_inputs);
 
         // Step all physical devices based on the actual voltage drop across them
         for (int i = 0; i < 8; ++i) {
@@ -105,18 +152,22 @@ public:
         
         // Compute read-out currents at the virtual ground ammeter terminals
         for (int j = 0; j < 8; ++j) {
+            double raw_i = 0.0;
             if (m_enable_ir_drop) {
                 // Current exiting the column j wire segment at index 7 into ground (0.0 V):
                 // I_out = V_col[7][j] / r_wire
-                m_outputs[j] = m_v_col_nodes[7][j] / m_r_wire;
+                raw_i = m_v_col_nodes[7][j] / m_r_wire;
             } else {
                 // Ideal case (0-ohm lines): simply sum the nominal currents of column devices
                 double sum_current = 0.0;
                 for (int i = 0; i < 8; ++i) {
                     sum_current += m_devices[i][j].i();
                 }
-                m_outputs[j] = sum_current;
+                raw_i = sum_current;
             }
+            
+            // Apply ADC quantization to the readout column current
+            m_outputs[j] = quantize_adc(raw_i);
         }
     }
     
@@ -125,12 +176,12 @@ public:
     }
     
 private:
-    void solve_nodal_voltages() {
+    void solve_nodal_voltages_with_inputs(const std::vector<double>& inputs) {
         if (!m_enable_ir_drop) {
             // Ideal crossbar: all row nodes equal input, column nodes are virtual ground
             for (int i = 0; i < 8; ++i) {
                 for (int j = 0; j < 8; ++j) {
-                    m_v_row_nodes[i][j] = m_inputs[i];
+                    m_v_row_nodes[i][j] = inputs[i];
                     m_v_col_nodes[i][j] = 0.0;
                 }
             }
@@ -149,7 +200,7 @@ private:
 
             // Solve KCL at Row nodes: V_row[i][j]
             for (int i = 0; i < 8; ++i) {
-                double v_in = m_inputs[i];
+                double v_in = inputs[i];
                 for (int j = 0; j < 8; ++j) {
                     double old_val = m_v_row_nodes[i][j];
                     double v_left = (j == 0) ? v_in : m_v_row_nodes[i][j - 1];
@@ -215,6 +266,17 @@ private:
     std::vector<std::vector<double>> m_v_col_nodes;
     bool m_enable_ir_drop = false;
     double m_r_wire = 1.5; // Wire segment resistance in Ohms
+
+    // DAC & ADC Quantization properties
+    bool m_enable_dac = false;
+    int m_dac_bits = 8;
+    double m_dac_v_min = -2.0;
+    double m_dac_v_max = 2.0;
+    
+    bool m_enable_adc = false;
+    int m_adc_bits = 8;
+    double m_adc_i_min = -0.002;
+    double m_adc_i_max = 0.002;
 
 public:
     std::vector<std::vector<double>> m_edge_detected_output;
