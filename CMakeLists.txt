@@ -48,6 +48,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+FetchContent_Declare(
+  pybind11
+  GIT_REPOSITORY https://github.com/pybind/pybind11.git
+  GIT_TAG v2.12.0
+)
+FetchContent_MakeAvailable(pybind11)
+
 add_library(imgui_backend
   ${imgui_SOURCE_DIR}/imgui.cpp
   ${imgui_SOURCE_DIR}/imgui_draw.cpp
@@ -72,6 +79,7 @@ target_include_directories(implot_lib PUBLIC ${implot_SOURCE_DIR} ${imgui_SOURCE
 target_link_libraries(implot_lib PUBLIC imgui_backend)
 
 file(GLOB SRC_FILES CONFIGURE_DEPENDS src/**/*.cpp)
+list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/bindings/pybindings.cpp")
 
 add_executable(MemristorSim src/main.cpp ${SRC_FILES})
 target_include_directories(MemristorSim PUBLIC src ${glm_SOURCE_DIR})
@@ -82,3 +90,7 @@ target_compile_definitions(MemristorSim PRIVATE IMGUI_ENABLE_DOCKING)
 if(WIN32)
   target_link_libraries(MemristorSim PRIVATE opengl32)
 endif()
+
+# Python Extension Module
+pybind11_add_module(memristorsim src/bindings/pybindings.cpp src/physics/Memristor.cpp)
+target_include_directories(memristorsim PUBLIC src)
