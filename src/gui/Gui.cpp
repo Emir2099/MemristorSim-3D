@@ -416,30 +416,51 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
                 waveform.set_waveform(index_to_waveform(wf));
             }
             
-            double amp = waveform.amplitude();
-            double freq = waveform.frequency();
-            if (ImGui::DragFloat("Amplitude (V)", (float*)&amp, 0.05f, -10.0f, 10.0f, "%.2f V")) {
-                waveform.set_amplitude(amp);
+            float amp = (float)waveform.amplitude();
+            float freq = (float)waveform.frequency();
+            if (ImGui::DragFloat("Amplitude (V)", &amp, 0.05f, -10.0f, 10.0f, "%.2f V")) {
+                waveform.set_amplitude((double)amp);
             }
-            if (ImGui::DragFloat("Frequency (Hz)", (float*)&freq, 0.1f, 0.01f, 100.0f, "%.2f Hz")) {
-                waveform.set_frequency(freq);
+            if (ImGui::DragFloat("Frequency (Hz)", &freq, 0.1f, 0.01f, 100.0f, "%.2f Hz")) {
+                waveform.set_frequency((double)freq);
             }
             
             if (waveform.waveform() == Waveform::RRAM_Sequence) {
                 ImGui::Separator();
                 ImGui::TextColored(ImVec4(0.9f, 0.8f, 0.1f, 1.0f), "Memory Cycle Config");
                 PulseSettings& ps = waveform.pulse_settings();
-                ImGui::DragFloat("V_SET (Write)", (float*)&ps.v_set, 0.05f, 0.0f, 5.0f, "%.2f V");
-                ImGui::DragFloat("V_RESET (Erase)", (float*)&ps.v_reset, 0.05f, -5.0f, 0.0f, "%.2f V");
-                ImGui::DragFloat("V_READ (Check)", (float*)&ps.v_read, 0.01f, 0.0f, 1.0f, "%.2f V");
-                ImGui::DragFloat("Pulse Width (s)", (float*)&ps.pulse_width, 0.05f, 0.01f, 2.0f, "%.2f s");
+                float ps_v_set = (float)ps.v_set;
+                float ps_v_reset = (float)ps.v_reset;
+                float ps_v_read = (float)ps.v_read;
+                float ps_pulse_width = (float)ps.pulse_width;
+                if (ImGui::DragFloat("V_SET (Write)", &ps_v_set, 0.05f, 0.0f, 5.0f, "%.2f V")) {
+                    ps.v_set = (double)ps_v_set;
+                }
+                if (ImGui::DragFloat("V_RESET (Erase)", &ps_v_reset, 0.05f, -5.0f, 0.0f, "%.2f V")) {
+                    ps.v_reset = (double)ps_v_reset;
+                }
+                if (ImGui::DragFloat("V_READ (Check)", &ps_v_read, 0.01f, 0.0f, 1.0f, "%.2f V")) {
+                    ps.v_read = (double)ps_v_read;
+                }
+                if (ImGui::DragFloat("Pulse Width (s)", &ps_pulse_width, 0.05f, 0.01f, 2.0f, "%.2f s")) {
+                    ps.pulse_width = (double)ps_pulse_width;
+                }
             }
         }
         
         if (ImGui::CollapsingHeader("Physical Constants & Conduction", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::SliderFloat("Mobility (k_on)", (float*)&params.k_on, 1.0f, 1000.0f, "%.1f");
-            ImGui::SliderFloat("Threshold (v_on)", (float*)&params.v_on, -5.0f, -0.1f, "%.2f V");
-            ImGui::SliderFloat("Compliance (A)", (float*)&params.I_compliance, 0.0001f, 0.1f, "%.5f A");
+            float k_on_f = (float)params.k_on;
+            float v_on_f = (float)params.v_on;
+            float compliance_f = (float)params.I_compliance;
+            if (ImGui::SliderFloat("Mobility (k_on)", &k_on_f, 1.0f, 1000.0f, "%.1f")) {
+                params.k_on = (double)k_on_f;
+            }
+            if (ImGui::SliderFloat("Threshold (v_on)", &v_on_f, -5.0f, -0.1f, "%.2f V")) {
+                params.v_on = (double)v_on_f;
+            }
+            if (ImGui::SliderFloat("Compliance (A)", &compliance_f, 0.0001f, 0.1f, "%.5f A")) {
+                params.I_compliance = (double)compliance_f;
+            }
             
             ImGui::Separator();
             ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "Conduction Model:");
@@ -451,12 +472,21 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
             }
             
             if (params.conduction_model == ConductionModel::Sinh) {
-                ImGui::SliderFloat("Sinh Factor (gamma)", (float*)&params.gamma_sinh, 0.5f, 5.0f, "%.2f");
+                float gamma_sinh_f = (float)params.gamma_sinh;
+                if (ImGui::SliderFloat("Sinh Factor (gamma)", &gamma_sinh_f, 0.5f, 5.0f, "%.2f")) {
+                    params.gamma_sinh = (double)gamma_sinh_f;
+                }
             } else if (params.conduction_model == ConductionModel::PooleFrenkel) {
-                ImGui::SliderFloat("PF Factor (beta_pf)", (float*)&params.beta_pf, 0.1f, 5.0f, "%.2f");
+                float beta_pf_f = (float)params.beta_pf;
+                if (ImGui::SliderFloat("PF Factor (beta_pf)", &beta_pf_f, 0.1f, 5.0f, "%.2f")) {
+                    params.beta_pf = (double)beta_pf_f;
+                }
                 ImGui::TextWrapped("Poole-Frenkel: ln(I/V) is proportional to sqrt(V). Mapped to R_off at 1V.");
             } else if (params.conduction_model == ConductionModel::Schottky) {
-                ImGui::SliderFloat("Schottky Factor (beta_sc)", (float*)&params.beta_sc, 0.1f, 5.0f, "%.2f");
+                float beta_sc_f = (float)params.beta_sc;
+                if (ImGui::SliderFloat("Schottky Factor (beta_sc)", &beta_sc_f, 0.1f, 5.0f, "%.2f")) {
+                    params.beta_sc = (double)beta_sc_f;
+                }
                 ImGui::TextWrapped("Schottky Tunneling: ln(I) is proportional to sqrt(V). Mapped to R_off at 1V.");
             }
             
@@ -466,10 +496,19 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
                 const char* selector_types[] = { "Volatile TS (1S1R)", "Transistor Gate (1T1R)" };
                 ImGui::Combo("Selector Type", &params.selector_type, selector_types, 2);
                 if (params.selector_type == 0) {
-                    ImGui::SliderFloat("Selector V_th", (float*)&params.selector_v_th, 0.1f, 1.5f, "%.2f V");
+                    float selector_v_th_f = (float)params.selector_v_th;
+                    if (ImGui::SliderFloat("Selector V_th", &selector_v_th_f, 0.1f, 1.5f, "%.2f V")) {
+                        params.selector_v_th = (double)selector_v_th_f;
+                    }
                 } else {
-                    ImGui::SliderFloat("Transistor V_gate", (float*)&params.selector_v_gate, 0.5f, 3.3f, "%.2f V");
-                    ImGui::SliderFloat("Transistor V_th", (float*)&params.selector_v_th_trans, 0.1f, 1.0f, "%.2f V");
+                    float selector_v_gate_f = (float)params.selector_v_gate;
+                    float selector_v_th_trans_f = (float)params.selector_v_th_trans;
+                    if (ImGui::SliderFloat("Transistor V_gate", &selector_v_gate_f, 0.5f, 3.3f, "%.2f V")) {
+                        params.selector_v_gate = (double)selector_v_gate_f;
+                    }
+                    if (ImGui::SliderFloat("Transistor V_th", &selector_v_th_trans_f, 0.1f, 1.0f, "%.2f V")) {
+                        params.selector_v_th_trans = (double)selector_v_th_trans_f;
+                    }
                 }
             }
         }
@@ -477,18 +516,36 @@ void Gui::draw_controls(MemristorParams& params, WaveformGenerator& waveform, Ph
         if (ImGui::CollapsingHeader("Stochasticity & Telegraph Noise (RTN)", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::Checkbox("Enable D2D & C2C Variability", &params.enable_variability);
             if (params.enable_variability) {
-                ImGui::SliderFloat("D2D w_init sigma", (float*)&params.sigma_w_init, 0.01f, 0.2f, "%.3f");
-                ImGui::SliderFloat("D2D k_on/off sigma", (float*)&params.sigma_k_on, 0.05f, 0.5f, "%.2f");
-                ImGui::SliderFloat("C2C write noise (SDE)", (float*)&params.sigma_c2c, 0.005f, 0.1f, "%.3f");
+                float sigma_w_init_f = (float)params.sigma_w_init;
+                float sigma_k_on_f = (float)params.sigma_k_on;
+                float sigma_c2c_f = (float)params.sigma_c2c;
+                if (ImGui::SliderFloat("D2D w_init sigma", &sigma_w_init_f, 0.01f, 0.2f, "%.3f")) {
+                    params.sigma_w_init = (double)sigma_w_init_f;
+                }
+                if (ImGui::SliderFloat("D2D k_on/off sigma", &sigma_k_on_f, 0.05f, 0.5f, "%.2f")) {
+                    params.sigma_k_on = (double)sigma_k_on_f;
+                }
+                if (ImGui::SliderFloat("C2C write noise (SDE)", &sigma_c2c_f, 0.005f, 0.1f, "%.3f")) {
+                    params.sigma_c2c = (double)sigma_c2c_f;
+                }
                 ImGui::TextWrapped("Variability applies normal/log-normal scatter to device properties upon reset/creation.");
             }
             
             ImGui::Separator();
             ImGui::Checkbox("Enable Random Telegraph Noise (RTN)", &params.enable_rtn);
             if (params.enable_rtn) {
-                ImGui::SliderFloat("RTN Amplitude", (float*)&params.rtn_amplitude, 0.005f, 0.15f, "%.3f");
-                ImGui::SliderFloat("Capture lifetime (tau_c)", (float*)&params.rtn_tau_c, 0.005f, 0.5f, "%.3f s");
-                ImGui::SliderFloat("Emission lifetime (tau_e)", (float*)&params.rtn_tau_e, 0.005f, 0.5f, "%.3f s");
+                float rtn_amplitude_f = (float)params.rtn_amplitude;
+                float rtn_tau_c_f = (float)params.rtn_tau_c;
+                float rtn_tau_e_f = (float)params.rtn_tau_e;
+                if (ImGui::SliderFloat("RTN Amplitude", &rtn_amplitude_f, 0.005f, 0.15f, "%.3f")) {
+                    params.rtn_amplitude = (double)rtn_amplitude_f;
+                }
+                if (ImGui::SliderFloat("Capture lifetime (tau_c)", &rtn_tau_c_f, 0.005f, 0.5f, "%.3f s")) {
+                    params.rtn_tau_c = (double)rtn_tau_c_f;
+                }
+                if (ImGui::SliderFloat("Emission lifetime (tau_e)", &rtn_tau_e_f, 0.005f, 0.5f, "%.3f s")) {
+                    params.rtn_tau_e = (double)rtn_tau_e_f;
+                }
                 ImGui::TextWrapped("RTN models discrete capture/emission events, visible as telegraph jumps on the I-V plot.");
             }
         }
