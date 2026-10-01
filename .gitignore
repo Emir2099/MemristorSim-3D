@@ -51,3 +51,7 @@ local_settings.py
 data/
 __pycache__/
 *.pyc
+
+P2/
+
+diagnostics_report.md
