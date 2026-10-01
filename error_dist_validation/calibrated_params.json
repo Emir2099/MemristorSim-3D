@@ -1,0 +1,154 @@
+{
+  "status": "ok",
+  "shape": {
+    "k_on": 49173.551603980275,
+    "k_off": -86465.73422065927,
+    "v_on": -0.3671035919638096,
+    "v_off": 0.45453731191773283,
+    "alpha_on": 2.9417779925201675,
+    "alpha_off": 4.801772094341022,
+    "R_on": 15000.0,
+    "R_off": 1000000.0,
+    "enable_selector": false,
+    "selector_type": 1,
+    "selector_v_gate": 1.8,
+    "note": "Shape parameters FIT to Yao experiment (A) pulse counts (1.0\u20134.0 uA scoped); not independently measured for the Yao device."
+  },
+  "noise": {
+    "enable_variability": true,
+    "sigma_d2d": 0.0031551261173307903,
+    "sigma_c2c": 5.325875270032986,
+    "sigma_d2d_maps_to": [
+      "sigma_k_on",
+      "sigma_w_init"
+    ],
+    "simulated_error_std_nA": 189.63946483167675,
+    "target_std_nA": 108.0,
+    "target_source": "Yao et al. experiment (C) ResNet/CIFAR-10 weight-transfer assumed Gaussian N(0, 108 nA) - NOT measured from experiment (A)",
+    "rtn": "omitted for this pilot",
+    "verify_read": "noisy (engine 5% via update+i) for Stage 2 / Monte Carlo"
+  },
+  "stage1": {
+    "mean_rel_error": 0.14248578672071863,
+    "max_rel_error": 0.31147540983606564,
+    "per_group_rel_error": [
+      0.2465753424657534,
+      0.04255319148936168,
+      0.09523809523809523,
+      0.09547738693467331,
+      0.08108108108108109,
+      0.31147540983606564,
+      0.125
+    ],
+    "per_group_targets_uA": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "loss": 0.2000124724603096,
+    "sim_set": [
+      0.0,
+      2.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "sim_reset": [
+      22.0,
+      25.0,
+      19.0,
+      18.0,
+      17.0,
+      16.0,
+      17.0
+    ],
+    "sim_totals": [
+      22.0,
+      27.0,
+      19.0,
+      18.0,
+      17.0,
+      16.0,
+      18.0
+    ],
+    "yao_set": [
+      0.9,
+      3.6,
+      7.0,
+      9.5,
+      11.9,
+      7.9,
+      14.0
+    ],
+    "yao_reset": [
+      28.3,
+      24.6,
+      14.0,
+      10.4,
+      6.6,
+      4.3,
+      2.0
+    ],
+    "yao_totals": [
+      29.2,
+      28.2,
+      21.0,
+      19.9,
+      18.5,
+      12.2,
+      16.0
+    ],
+    "gate_mean_threshold": 0.2,
+    "gate_per_group_threshold": 0.4,
+    "n_starts": 12,
+    "best_start_idx": 0,
+    "n_evals": 1190,
+    "enable_selector": false,
+    "scoped_exclude_05ua": true,
+    "scoping_note": "0.5 uA excluded after Yao V_mem correction failed per-group gate. Validated model covers 1.0\u20134.0 uA only. No further parameter search.",
+    "gate_passed": true
+  },
+  "stage2": {
+    "n_per_group": 200,
+    "elapsed_s": 22.26871085166931
+  },
+  "deploy": {
+    "R_on": 50000.00000000001,
+    "R_off": 200000.00000000003,
+    "groups_uA": [
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "scoped_exclude_05ua": true,
+    "note": "MNIST weight\u2192G mapping MUST use these deploy R_on/R_off (characterized window), not Stage-1 sanity R_on/R_off."
+  },
+  "pulse_conditions": {
+    "V_SET_terminal": -2.0,
+    "V_RESET_terminal": 1.8,
+    "V_SET_eff": -1.5,
+    "V_RESET_eff": 1.2000000000000002,
+    "V_SET_gap": 0.5,
+    "V_RESET_gap": 0.6,
+    "V_READ": 0.2,
+    "pulse_width_s": 5e-08,
+    "margin_A": 1e-07,
+    "max_pulses": 500,
+    "voltage_model": "Literature-fixed Yao DC-vs-pulse gap: V_SET_eff = V_term + 0.5, V_RESET_eff = V_term - 0.6 (magnitude reduced). NOT a fitted transistor."
+  },
+  "experiments_disclaimer": {
+    "A": "8-group pulse-count table - Stage-1 calibration target",
+    "B": "32-state - source of pulse cap 500 only",
+    "C": "ResNet/CIFAR weight-transfer - source of 108 nA Gaussian assumption only"
+  }
+}

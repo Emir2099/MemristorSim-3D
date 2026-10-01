@@ -1,0 +1,1158 @@
+{
+  "pooled_winner": {
+    "name": "gmm2",
+    "params": {
+      "weights": [
+        0.6477801933310601,
+        0.35221980666893987
+      ],
+      "means": [
+        3.403544893038353e-09,
+        5.46483590350044e-08
+      ],
+      "variances": [
+        1.721163233011694e-14,
+        6.738662406614033e-14
+      ]
+    },
+    "n_params": 5,
+    "nll": 92796.77490144168,
+    "aic": 185603.54980288335,
+    "bic": 185641.28386592635,
+    "ks_statistic": 0.014500000000000013,
+    "ks_pvalue": 0.10432900594568328,
+    "selection": "lowest_aic_with_ks_pass",
+    "ks_pass": true
+  },
+  "empirical_moments": {
+    "mean": 2.145298342290749e-08,
+    "std": 1.8837042259755478e-07,
+    "std_nA": 188.37042259755478
+  },
+  "groups_uA": [
+    1.0,
+    1.5,
+    2.0,
+    2.5,
+    3.0,
+    3.5,
+    4.0
+  ],
+  "model_comparison_pooled": [
+    {
+      "model": "gaussian",
+      "aic": 186409.7689323292,
+      "bic": 186424.86255754638,
+      "ks_statistic": 0.04336082300454158,
+      "ks_pvalue": 2.6064561404354917e-23
+    },
+    {
+      "model": "skewnorm",
+      "aic": 186245.16413538237,
+      "bic": 186267.80457320815,
+      "ks_statistic": 0.03521052143578127,
+      "ks_pvalue": 1.6250830582062421e-15
+    },
+    {
+      "model": "truncnorm",
+      "aic": 186409.28959247394,
+      "bic": 186424.38321769112,
+      "ks_statistic": 0.043366151724917534,
+      "ks_pvalue": 2.5729093155777427e-23
+    },
+    {
+      "model": "gmm2",
+      "aic": 185603.54980288335,
+      "bic": 185641.28386592635,
+      "ks_statistic": 0.014500000000000013,
+      "ks_pvalue": 0.10432900594568328
+    }
+  ],
+  "reports": [
+    {
+      "name": "group_1.0uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9947914844175515,
+          "p_value": 1.8117744104550455e-06
+        },
+        "anderson_darling": {
+          "statistic": 1.21766817010257,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": true
+        },
+        "dagostino_pearson": {
+          "statistic": 33.46482812035853,
+          "p_value": 5.4100951676856163e-08
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.2707271391928214,
+          "ci95": [
+            0.13822978010008904,
+            0.4092898368724192
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 0.3927626791747505,
+          "ci95": [
+            0.07373487228102703,
+            0.7255286148920734
+          ]
+        },
+        "mean": 1.0709774129094838e-08,
+        "std": 7.964533212090581e-08,
+        "std_nA": 79.6453321209058
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 1.0709774129094836e-08,
+            "scale": 7.964533212090581e-08
+          },
+          "n_params": 2,
+          "nll": 11593.043925916694,
+          "aic": 23190.08785183339,
+          "bic": 23201.289656752473,
+          "ks_statistic": 0.02143937081311098,
+          "ks_pvalue": 0.31236885215748733
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 1.282265148414448,
+            "loc": -5.364606232653593e-08,
+            "scale": 1.0239655747870535e-07
+          },
+          "n_params": 3,
+          "nll": 11582.568053710376,
+          "aic": 23171.136107420753,
+          "bic": 23187.938814799378,
+          "ks_statistic": 0.016821443467677832,
+          "ks_pvalue": 0.6171280554656559
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -2.9149141147079676,
+            "b": 4.002620738191983,
+            "loc": 1.0709774129094836e-08,
+            "scale": 7.964533212090581e-08,
+            "bound_lo": -2.2144952864073738e-07,
+            "bound_hi": 3.294998321764205e-07
+          },
+          "n_params": 2,
+          "nll": 11589.420135870147,
+          "aic": 23182.840271740293,
+          "bic": 23194.042076659378,
+          "ks_statistic": 0.021947409120694594,
+          "ks_pvalue": 0.28616518203231456
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5406475298494794,
+              0.4593524701505206
+            ],
+            "means": [
+              -2.916564214457082e-08,
+              5.764224257323487e-08
+            ],
+            "variances": [
+              3.843970924527876e-15,
+              5.21101764783163e-15
+            ]
+          },
+          "n_params": 5,
+          "nll": 11591.086311703193,
+          "aic": 23192.172623406386,
+          "bic": 23220.177135704096,
+          "ks_statistic": 0.0305,
+          "ks_pvalue": 0.3100757299327459
+        }
+      ],
+      "winner": {
+        "name": "skewnorm",
+        "params": {
+          "a": 1.282265148414448,
+          "loc": -5.364606232653593e-08,
+          "scale": 1.0239655747870535e-07
+        },
+        "n_params": 3,
+        "nll": 11582.568053710376,
+        "aic": 23171.136107420753,
+        "bic": 23187.938814799378,
+        "ks_statistic": 0.016821443467677832,
+        "ks_pvalue": 0.6171280554656559,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "group_1.5uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9905758157582588,
+          "p_value": 4.1183609677696405e-10
+        },
+        "anderson_darling": {
+          "statistic": 4.726967222484973,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": true
+        },
+        "dagostino_pearson": {
+          "statistic": 45.10751815379959,
+          "p_value": 1.6033446490443336e-10
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.37733281871165086,
+          "ci95": [
+            0.2692503738977426,
+            0.4830643590399912
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 0.054757528777980014,
+          "ci95": [
+            -0.2221953378415802,
+            0.3472778811602547
+          ]
+        },
+        "mean": -2.6106576310076554e-09,
+        "std": 1.300132847739397e-07,
+        "std_nA": 130.01328477393972
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": -2.6106576310076554e-09,
+            "scale": 1.300132847739397e-07
+          },
+          "n_params": 2,
+          "nll": 12573.150338015843,
+          "aic": 25150.300676031686,
+          "bic": 25161.50248095077,
+          "ks_statistic": 0.03949805876626733,
+          "ks_pvalue": 0.003791269779311207
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 1.941815839758654,
+            "loc": -1.3408431981375635e-07,
+            "scale": 1.849020628092911e-07
+          },
+          "n_params": 3,
+          "nll": 12546.767214101848,
+          "aic": 25099.534428203697,
+          "bic": 25116.337135582322,
+          "ks_statistic": 0.01481645099135831,
+          "ks_pvalue": 0.7663598906010153
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -2.8369553255487863,
+            "b": 4.043876862679414,
+            "loc": -2.6106576310076554e-09,
+            "scale": 1.300132847739397e-07,
+            "bound_lo": -3.7145253826252685e-07,
+            "bound_hi": 5.231470565072768e-07
+          },
+          "n_params": 2,
+          "nll": 12568.537850363544,
+          "aic": 25141.075700727088,
+          "bic": 25152.277505646172,
+          "ks_statistic": 0.04079240012393398,
+          "ks_pvalue": 0.002499002931923443
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5948662468474732,
+              0.40513375315252675
+            ],
+            "means": [
+              -7.4316646055229e-08,
+              1.0267672432244264e-07
+            ],
+            "variances": [
+              7.811933540955029e-15,
+              1.1617552979440474e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 12547.630616297149,
+          "aic": 25105.261232594297,
+          "bic": 25133.265744892007,
+          "ks_statistic": 0.0285,
+          "ks_pvalue": 0.3910873897562125
+        }
+      ],
+      "winner": {
+        "name": "skewnorm",
+        "params": {
+          "a": 1.941815839758654,
+          "loc": -1.3408431981375635e-07,
+          "scale": 1.849020628092911e-07
+        },
+        "n_params": 3,
+        "nll": 12546.767214101848,
+        "aic": 25099.534428203697,
+        "bic": 25116.337135582322,
+        "ks_statistic": 0.01481645099135831,
+        "ks_pvalue": 0.7663598906010153,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "group_2.0uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9982114963677028,
+          "p_value": 0.027886178855703603
+        },
+        "anderson_darling": {
+          "statistic": 0.41354240586429114,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": false
+        },
+        "dagostino_pearson": {
+          "statistic": 3.558475032230268,
+          "p_value": 0.16876678017228747
+        },
+        "reject_normality_any_p_lt_0.01": false
+      },
+      "shape": {
+        "skewness": {
+          "value": -0.04847266933657582,
+          "ci95": [
+            -0.17638052538492888,
+            0.07176269139831791
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 0.1883397126028492,
+          "ci95": [
+            -0.06486991038421543,
+            0.46821302182671803
+          ]
+        },
+        "mean": 4.27321798731659e-08,
+        "std": 1.4122008034880413e-07,
+        "std_nA": 141.22008034880415
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 4.273217987316589e-08,
+            "scale": 1.4122008034880413e-07
+          },
+          "n_params": 2,
+          "nll": 12738.516120509288,
+          "aic": 25481.032241018576,
+          "bic": 25492.23404593766,
+          "ks_statistic": 0.01114109219048065,
+          "ks_pvalue": 0.9627130258814524
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": -0.7137675547638356,
+            "loc": 1.166032902171266e-07,
+            "scale": 1.5937393866046324e-07
+          },
+          "n_params": 3,
+          "nll": 12737.92215201199,
+          "aic": 25481.84430402398,
+          "bic": 25498.647011402605,
+          "ks_statistic": 0.008278214374260573,
+          "ks_pvalue": 0.9990163064415409
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -3.2697953657685264,
+            "b": 4.006635630707402,
+            "loc": 4.273217987316589e-08,
+            "scale": 1.4122008034880413e-07,
+            "bound_lo": -4.190285844048129e-07,
+            "bound_hi": 6.085495855700468e-07
+          },
+          "n_params": 2,
+          "nll": 12737.377953837473,
+          "aic": 25478.755907674946,
+          "bic": 25489.95771259403,
+          "ks_statistic": 0.010956810197245925,
+          "ks_pvalue": 0.9678537310291749
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5238770687200386,
+              0.4761229312799614
+            ],
+            "means": [
+              1.2321006008560653e-07,
+              -4.581746395338877e-08
+            ],
+            "variances": [
+              1.2354190035919337e-14,
+              1.3325858064661284e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 12744.623239237977,
+          "aic": 25499.246478475954,
+          "bic": 25527.250990773664,
+          "ks_statistic": 0.0215,
+          "ks_pvalue": 0.7445353818345306
+        }
+      ],
+      "winner": {
+        "name": "truncnorm",
+        "params": {
+          "a": -3.2697953657685264,
+          "b": 4.006635630707402,
+          "loc": 4.273217987316589e-08,
+          "scale": 1.4122008034880413e-07,
+          "bound_lo": -4.190285844048129e-07,
+          "bound_hi": 6.085495855700468e-07
+        },
+        "n_params": 2,
+        "nll": 12737.377953837473,
+        "aic": 25478.755907674946,
+        "bic": 25489.95771259403,
+        "ks_statistic": 0.010956810197245925,
+        "ks_pvalue": 0.9678537310291749,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "group_2.5uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9958675631294914,
+          "p_value": 2.6364999151051934e-05
+        },
+        "anderson_darling": {
+          "statistic": 1.2646780023405881,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": true
+        },
+        "dagostino_pearson": {
+          "statistic": 30.905799737119885,
+          "p_value": 1.9448712556240403e-07
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.18314371788534528,
+          "ci95": [
+            0.026284880065971374,
+            0.3507340921187734
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 0.6150488766879914,
+          "ci95": [
+            0.23227788700834462,
+            1.099298597287139
+          ]
+        },
+        "mean": 1.4914229717712467e-08,
+        "std": 1.6756715913524374e-07,
+        "std_nA": 167.56715913524374
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 1.4914229717712467e-08,
+            "scale": 1.6756715913524374e-07
+          },
+          "n_params": 2,
+          "nll": 13080.645508343907,
+          "aic": 26165.291016687814,
+          "bic": 26176.4928216069,
+          "ks_statistic": 0.02109992712063935,
+          "ks_pvalue": 0.33077575740373144
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 1.0535874408614267,
+            "loc": -1.0377417969262885e-07,
+            "scale": 2.05342891211542e-07
+          },
+          "n_params": 3,
+          "nll": 13075.34369379827,
+          "aic": 26156.68738759654,
+          "bic": 26173.490094975165,
+          "ks_statistic": 0.017473110437458028,
+          "ks_pvalue": 0.5685391002594606
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -3.453876658333956,
+            "b": 4.844156787876887,
+            "loc": 1.4914229717712467e-08,
+            "scale": 1.6756715913524374e-07,
+            "bound_lo": -5.638420699228374e-07,
+            "bound_hi": 8.2663582106795e-07
+          },
+          "n_params": 2,
+          "nll": 13080.091570090297,
+          "aic": 26164.183140180594,
+          "bic": 26175.38494509968,
+          "ks_statistic": 0.021157905955944134,
+          "ks_pvalue": 0.32758079774790283
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5294003060359103,
+              0.4705996939640898
+            ],
+            "means": [
+              -6.404334222285597e-08,
+              1.0373741274421687e-07
+            ],
+            "variances": [
+              1.8845507304951403e-14,
+              2.3562855576471078e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 13083.21086725242,
+          "aic": 26176.42173450484,
+          "bic": 26204.426246802548,
+          "ks_statistic": 0.029,
+          "ks_pvalue": 0.36968362182350656
+        }
+      ],
+      "winner": {
+        "name": "skewnorm",
+        "params": {
+          "a": 1.0535874408614267,
+          "loc": -1.0377417969262885e-07,
+          "scale": 2.05342891211542e-07
+        },
+        "n_params": 3,
+        "nll": 13075.34369379827,
+        "aic": 26156.68738759654,
+        "bic": 26173.490094975165,
+        "ks_statistic": 0.017473110437458028,
+        "ks_pvalue": 0.5685391002594606,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "group_3.0uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.992540329650233,
+          "p_value": 1.4643552220658348e-08
+        },
+        "anderson_darling": {
+          "statistic": 2.4026611915185185,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": true
+        },
+        "dagostino_pearson": {
+          "statistic": 56.94651615748738,
+          "p_value": 4.3074588237660147e-13
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.3254034764607659,
+          "ci95": [
+            0.18884552224869944,
+            0.4655562485331464
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 0.6802134903429407,
+          "ci95": [
+            0.29927286557518185,
+            1.077033340320484
+          ]
+        },
+        "mean": 1.2432578636971535e-08,
+        "std": 2.045392013045697e-07,
+        "std_nA": 204.5392013045697
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 1.2432578636971535e-08,
+            "scale": 2.0453920130456967e-07
+          },
+          "n_params": 2,
+          "nll": 13479.396367475145,
+          "aic": 26962.79273495029,
+          "bic": 26973.994539869374,
+          "ks_statistic": 0.028461586700347596,
+          "ks_pvalue": 0.07681477678017334
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 1.3617554111861407,
+            "loc": -1.5867479780810907e-07,
+            "scale": 2.666721334718936e-07
+          },
+          "n_params": 3,
+          "nll": 13464.872291734326,
+          "aic": 26935.74458346865,
+          "bic": 26952.547290847277,
+          "ks_statistic": 0.017657822466408457,
+          "ks_pvalue": 0.5549554728339017
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -3.296054390204413,
+            "b": 4.549271206808625,
+            "loc": 1.2432578636971535e-08,
+            "scale": 2.0453920130456967e-07,
+            "bound_lo": -6.617397537918595e-07,
+            "bound_hi": 9.429368777954836e-07
+          },
+          "n_params": 2,
+          "nll": 13478.410210886894,
+          "aic": 26960.820421773788,
+          "bic": 26972.022226692872,
+          "ks_statistic": 0.028601902790438283,
+          "ks_pvalue": 0.07438638010103804
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5528685243208361,
+              0.4471314756791639
+            ],
+            "means": [
+              -7.605504555579204e-08,
+              1.2184563691876774e-07
+            ],
+            "variances": [
+              2.5999268630239095e-14,
+              3.976549845940098e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 13471.099558970498,
+          "aic": 26952.199117940996,
+          "bic": 26980.203630238706,
+          "ks_statistic": 0.0325,
+          "ks_pvalue": 0.24148215150724364
+        }
+      ],
+      "winner": {
+        "name": "skewnorm",
+        "params": {
+          "a": 1.3617554111861407,
+          "loc": -1.5867479780810907e-07,
+          "scale": 2.666721334718936e-07
+        },
+        "n_params": 3,
+        "nll": 13464.872291734326,
+        "aic": 26935.74458346865,
+        "bic": 26952.547290847277,
+        "ks_statistic": 0.017657822466408457,
+        "ks_pvalue": 0.5549554728339017,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "group_3.5uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9975136365960053,
+          "p_value": 0.002972190720453422
+        },
+        "anderson_darling": {
+          "statistic": 0.9597344022931793,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": false
+        },
+        "dagostino_pearson": {
+          "statistic": 13.056231291459419,
+          "p_value": 0.0014617577256305046
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.1327214080009615,
+          "ci95": [
+            0.013632710562773,
+            0.25828169793492234
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 0.3282205279343784,
+          "ci95": [
+            0.08731215217550835,
+            0.5718847431409128
+          ]
+        },
+        "mean": 2.6622900748039364e-08,
+        "std": 2.375175587959776e-07,
+        "std_nA": 237.5175587959776
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 2.6622900748039364e-08,
+            "scale": 2.3751755879597757e-07
+          },
+          "n_params": 2,
+          "nll": 13778.360171438175,
+          "aic": 27560.72034287635,
+          "bic": 27571.922147795434,
+          "ks_statistic": 0.021438636001060662,
+          "ks_pvalue": 0.3124079207399705
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 0.9532885099824777,
+            "loc": -1.2987793300316625e-07,
+            "scale": 2.8444172330159617e-07
+          },
+          "n_params": 3,
+          "nll": 13775.280758685156,
+          "aic": 27556.56151737031,
+          "bic": 27573.364224748937,
+          "ks_statistic": 0.017452952858789894,
+          "ks_pvalue": 0.570027466406521
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -3.3092958243246455,
+            "b": 4.043205949524802,
+            "loc": 2.6622900748039364e-08,
+            "scale": 2.3751755879597757e-07,
+            "bound_lo": -7.593929647792727e-07,
+            "bound_hi": 9.869553075885429e-07
+          },
+          "n_params": 2,
+          "nll": 13777.371892471881,
+          "aic": 27558.743784943763,
+          "bic": 27569.945589862848,
+          "ks_statistic": 0.021624021097982005,
+          "ks_pvalue": 0.3026583864234701
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5185112255363562,
+              0.4814887744636438
+            ],
+            "means": [
+              -9.454328306527217e-08,
+              1.5710574852073925e-07
+            ],
+            "variances": [
+              3.7714339853848515e-14,
+              4.371685189384431e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 13783.081439293454,
+          "aic": 27576.162878586907,
+          "bic": 27604.167390884617,
+          "ks_statistic": 0.034,
+          "ks_pvalue": 0.1979604458696868
+        }
+      ],
+      "winner": {
+        "name": "skewnorm",
+        "params": {
+          "a": 0.9532885099824777,
+          "loc": -1.2987793300316625e-07,
+          "scale": 2.8444172330159617e-07
+        },
+        "n_params": 3,
+        "nll": 13775.280758685156,
+        "aic": 27556.56151737031,
+        "bic": 27573.364224748937,
+        "ks_statistic": 0.017452952858789894,
+        "ks_pvalue": 0.570027466406521,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "group_4.0uA",
+      "n": 2000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9978408264449863,
+          "p_value": 0.008380265815590586
+        },
+        "anderson_darling": {
+          "statistic": 0.5383115365161757,
+          "critical_1pct": 1.09,
+          "reject_at_0.01": false
+        },
+        "dagostino_pearson": {
+          "statistic": 6.798604193202526,
+          "p_value": 0.03339656940829463
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.14296457767043694,
+          "ci95": [
+            0.03794815847717806,
+            0.2451638800301409
+          ]
+        },
+        "excess_kurtosis": {
+          "value": -0.014898645451658865,
+          "ci95": [
+            -0.19906592853858626,
+            0.16355186128298496
+          ]
+        },
+        "mean": 4.5369878486375976e-08,
+        "std": 2.7747827232813e-07,
+        "std_nA": 277.47827232812995
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 4.536987848637598e-08,
+            "scale": 2.7747827232813003e-07
+          },
+          "n_params": 2,
+          "nll": 14089.362330818143,
+          "aic": 28182.724661636286,
+          "bic": 28193.92646655537,
+          "ks_statistic": 0.015135497081748717,
+          "ks_pvalue": 0.7433009367482137
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 1.0063572053158167,
+            "loc": -1.4514564804209017e-07,
+            "scale": 3.365863371267395e-07
+          },
+          "n_params": 3,
+          "nll": 14086.156282475336,
+          "aic": 28178.312564950673,
+          "bic": 28195.115272329298,
+          "ks_statistic": 0.013611492273153503,
+          "ks_pvalue": 0.847450073339587
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -2.7496876321825146,
+            "b": 3.3323987864645734,
+            "loc": 4.536987848637598e-08,
+            "scale": 2.7747827232813003e-07,
+            "bound_lo": -7.176086951336547e-07,
+            "bound_hi": 9.700381364629229e-07
+          },
+          "n_params": 2,
+          "nll": 14082.52443712286,
+          "aic": 28169.04887424572,
+          "bic": 28180.250679164805,
+          "ks_statistic": 0.017320528588856604,
+          "ks_pvalue": 0.5798321587864068
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.5022641969361439,
+              0.4977358030638562
+            ],
+            "means": [
+              -1.253350305358013e-07,
+              2.1762785855392928e-07
+            ],
+            "variances": [
+              4.351239331881302e-14,
+              5.170251236494506e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 14091.603339550518,
+          "aic": 28193.206679101037,
+          "bic": 28221.211191398746,
+          "ks_statistic": 0.023,
+          "ks_pvalue": 0.6655293215356356
+        }
+      ],
+      "winner": {
+        "name": "truncnorm",
+        "params": {
+          "a": -2.7496876321825146,
+          "b": 3.3323987864645734,
+          "loc": 4.536987848637598e-08,
+          "scale": 2.7747827232813003e-07,
+          "bound_lo": -7.176086951336547e-07,
+          "bound_hi": 9.700381364629229e-07
+        },
+        "n_params": 2,
+        "nll": 14082.52443712286,
+        "aic": 28169.04887424572,
+        "bic": 28180.250679164805,
+        "ks_statistic": 0.017320528588856604,
+        "ks_pvalue": 0.5798321587864068,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    },
+    {
+      "name": "pooled",
+      "n": 14000,
+      "normality": {
+        "shapiro_wilk": {
+          "statistic": 0.9854343940664729,
+          "p_value": 2.6095483179094257e-22
+        },
+        "anderson_darling": {
+          "statistic": 55.73386134004795,
+          "critical_1pct": 1.092,
+          "reject_at_0.01": true
+        },
+        "dagostino_pearson": {
+          "statistic": 691.7696819489779,
+          "p_value": 6.083061269947572e-151
+        },
+        "reject_normality_any_p_lt_0.01": true
+      },
+      "shape": {
+        "skewness": {
+          "value": 0.2966680226515695,
+          "ci95": [
+            0.22470709441055162,
+            0.3690826414855212
+          ]
+        },
+        "excess_kurtosis": {
+          "value": 1.5821889987500244,
+          "ci95": [
+            1.380322310868103,
+            1.7876812292209323
+          ]
+        },
+        "mean": 2.145298342290749e-08,
+        "std": 1.8837042259755478e-07,
+        "std_nA": 188.37042259755478
+      },
+      "truncation_stuck": {
+        "fraction_near_Gmax_bound": 0.0,
+        "fraction_near_Gmin_bound": 0.0,
+        "fraction_near_either_bound": 0.0,
+        "stuck_fraction": 0.0,
+        "i_min_A": 2.0000000000000002e-07,
+        "i_max_A": 1.3333333333333333e-05,
+        "note": "Gaussian predicts negligible boundary fraction; stuck_flag qualitatively compared to Yao Ext. Data Fig. 1 outliers."
+      },
+      "candidates": [
+        {
+          "name": "gaussian",
+          "params": {
+            "loc": 2.1452983422907485e-08,
+            "scale": 1.8837042259755475e-07
+          },
+          "n_params": 2,
+          "nll": 93202.8844661646,
+          "aic": 186409.7689323292,
+          "bic": 186424.86255754638,
+          "ks_statistic": 0.04336082300454158,
+          "ks_pvalue": 2.6064561404354917e-23
+        },
+        {
+          "name": "skewnorm",
+          "params": {
+            "a": 1.1811561110307225,
+            "loc": -1.221386300968956e-07,
+            "scale": 2.3685852230781477e-07
+          },
+          "n_params": 3,
+          "nll": 93119.58206769118,
+          "aic": 186245.16413538237,
+          "bic": 186267.80457320815,
+          "ks_statistic": 0.03521052143578127,
+          "ks_pvalue": 1.6250830582062421e-15
+        },
+        {
+          "name": "truncnorm",
+          "params": {
+            "a": -4.145268335838603,
+            "b": 5.1255516171367805,
+            "loc": 2.1452983422907485e-08,
+            "scale": 1.8837042259755475e-07,
+            "bound_lo": -7.593929647792727e-07,
+            "bound_hi": 9.869553075885429e-07
+          },
+          "n_params": 2,
+          "nll": 93202.64479623697,
+          "aic": 186409.28959247394,
+          "bic": 186424.38321769112,
+          "ks_statistic": 0.043366151724917534,
+          "ks_pvalue": 2.5729093155777427e-23
+        },
+        {
+          "name": "gmm2",
+          "params": {
+            "weights": [
+              0.6477801933310601,
+              0.35221980666893987
+            ],
+            "means": [
+              3.403544893038353e-09,
+              5.46483590350044e-08
+            ],
+            "variances": [
+              1.721163233011694e-14,
+              6.738662406614033e-14
+            ]
+          },
+          "n_params": 5,
+          "nll": 92796.77490144168,
+          "aic": 185603.54980288335,
+          "bic": 185641.28386592635,
+          "ks_statistic": 0.014500000000000013,
+          "ks_pvalue": 0.10432900594568328
+        }
+      ],
+      "winner": {
+        "name": "gmm2",
+        "params": {
+          "weights": [
+            0.6477801933310601,
+            0.35221980666893987
+          ],
+          "means": [
+            3.403544893038353e-09,
+            5.46483590350044e-08
+          ],
+          "variances": [
+            1.721163233011694e-14,
+            6.738662406614033e-14
+          ]
+        },
+        "n_params": 5,
+        "nll": 92796.77490144168,
+        "aic": 185603.54980288335,
+        "bic": 185641.28386592635,
+        "ks_statistic": 0.014500000000000013,
+        "ks_pvalue": 0.10432900594568328,
+        "selection": "lowest_aic_with_ks_pass",
+        "ks_pass": true
+      }
+    }
+  ],
+  "notes": [
+    "RTN omitted in simulation.",
+    "108 nA Stage-2 anchor is from Yao experiment (C), not (A).",
+    "Winner selected by lowest AIC among models with KS p>=0.05; fallback to lowest AIC with ks_pass=False.",
+    "Stats are for active/scoped groups only \u2014 do not reuse pre-scope numbers."
+  ]
+}

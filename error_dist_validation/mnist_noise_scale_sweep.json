@@ -1,0 +1,68 @@
+{
+  "sweep": [
+    {
+      "noise_scale": 0.03,
+      "gaussian_mean": 0.97,
+      "gaussian_std": 0.0011726039399558585,
+      "gaussian_min": 0.968,
+      "gaussian_max": 0.9715,
+      "collapse_frac_below_80": 0.0,
+      "in_transition_band": false
+    },
+    {
+      "noise_scale": 0.06,
+      "gaussian_mean": 0.96625,
+      "gaussian_std": 0.0035089172119045628,
+      "gaussian_min": 0.96,
+      "gaussian_max": 0.97,
+      "collapse_frac_below_80": 0.0,
+      "in_transition_band": false
+    },
+    {
+      "noise_scale": 0.1,
+      "gaussian_mean": 0.9483125,
+      "gaussian_std": 0.015315305865375337,
+      "gaussian_min": 0.9105,
+      "gaussian_max": 0.9615,
+      "collapse_frac_below_80": 0.0,
+      "in_transition_band": false
+    },
+    {
+      "noise_scale": 0.2,
+      "gaussian_mean": 0.676,
+      "gaussian_std": 0.08748892787090262,
+      "gaussian_min": 0.52,
+      "gaussian_max": 0.801,
+      "collapse_frac_below_80": 0.875,
+      "in_transition_band": true
+    },
+    {
+      "noise_scale": 0.35,
+      "gaussian_mean": 0.21375,
+      "gaussian_std": 0.06007651371376339,
+      "gaussian_min": 0.1225,
+      "gaussian_max": 0.2895,
+      "collapse_frac_below_80": 1.0,
+      "in_transition_band": false
+    },
+    {
+      "noise_scale": 0.5,
+      "gaussian_mean": 0.14225,
+      "gaussian_std": 0.04915027975505328,
+      "gaussian_min": 0.0965,
+      "gaussian_max": 0.227,
+      "collapse_frac_below_80": 1.0,
+      "in_transition_band": false
+    },
+    {
+      "noise_scale": 0.7,
+      "gaussian_mean": 0.130625,
+      "gaussian_std": 0.037807695975819525,
+      "gaussian_min": 0.0945,
+      "gaussian_max": 0.2035,
+      "collapse_frac_below_80": 1.0,
+      "in_transition_band": false
+    }
+  ],
+  "transition_scale": 0.2
+}
