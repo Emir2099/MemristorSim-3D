@@ -55,3 +55,7 @@ __pycache__/
 P2/
 
 diagnostics_report.md
+
+# Batched engine Gate 2 artifact (regenerable)
+batched_engine/gate2_mc_results.parquet
+batched_engine/gate2_mc_results.csv
